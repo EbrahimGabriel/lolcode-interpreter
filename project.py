@@ -24,19 +24,18 @@ class LOLCODE_Interpreter(tk.Tk):
 
         #regexes to consider
         #categorized
-        self.identifiers = [r'^([a-zA-Z][a-zA-Z0-9_]*)$']
+        self.identifiers = r'^([a-zA-Z][a-zA-Z0-9_]*)$'
         self.numbr = r'^((-?[1-9]+)|(0))$'
         self.numbar = r'^((-?[1-9][0-9]*\.[0.9]+)|(-?[0\.[0.9]+))$'
         self.yarn = r'^"[^"]*"$'
         self.troof = r'^(WIN|FAIL)$'
-        self.datatype = r'^(NUMBA?R|YARN|TROOF)$'
+        self.datatype = r'^(NOOB|NUMBA?R|YARN|TROOF)$'
         self.progstart = r'^HAI$'
         self.progend = r'^KTHXBYE$'
         self.vardecstart = r'^WAZZUP$'
         self.vardecend = r'^BUHBYE$'
         self.vardec = r'^I HAS A$'
         self.varinit = r'^ITZ$'
-        self.datatypes = r'^(NOOB|NUMBA?R|YARN|TROOF)$'
         self.input = r'^GIMMEH$'
         self.output = r'^VISIBLE$'
         self.concatoperator = r'^\+$'
@@ -127,16 +126,105 @@ class LOLCODE_Interpreter(tk.Tk):
                 if tokens[j] == tempstr:
                     tokens[j] = substrings[i]
         tokens.append('\n')
-        print(tokens)
         return tokens
     
     #identifies a token
     def identify_token(self, token):
-        
-        pass
+        if re.search(self.identifiers, token) != None:
+            category = 'identifier'
+        if re.search(self.numbr, token) != None:
+            category = 'numbr'
+        if re.search(self.numbar, token) != None:
+            category = 'numbar'
+        if re.search(self.yarn, token) != None:
+            category = 'yarn'
+        if re.search(self.troof, token) != None:
+            category = 'troof'
+        if re.search(self.datatype, token) != None:
+            category = 'datatype'
+        if re.search(self.progstart, token) != None:
+            category = 'program start'
+        if re.search(self.progend, token) != None:
+            category = 'program end'
+        if re.search(self.vardecstart, token) != None:
+            category = 'variable declaration area start'
+        if re.search(self.vardecend, token) != None:
+            category = 'variable declaration area end'
+        if re.search(self.vardec, token) != None:
+            category = 'variable declaration'
+        if re.search(self.varinit, token) != None:
+            category = 'variable initialization'
+        if re.search(self.input, token) != None:
+            category = 'input'
+        if re.search(self.output, token) != None:
+            category = 'output'
+        if re.search(self.concatoperator, token) != None:
+            category = 'concatenation operator (VISIBLE)'
+        if re.search(self.arithmetic, token) != None:
+            category = 'arithmetic'
+        if re.search(self.opsep, token) != None:
+            category = 'operand separator'
+        if re.search(self.concat, token) != None:
+            category = 'concatenation'
+        if re.search(self.boolean, token) != None:
+            category = 'boolean'
+        if re.search(self.endlist, token) != None:
+            category = 'end of operands'
+        if re.search(self.comparison, token) != None:
+            category = 'comparison'
+        if re.search(self.typecast, token) != None:
+            category = 'typecast'
+        if re.search(self.recast, token) != None:
+            category = 'recast'
+        if re.search(self.assign, token) != None:
+            category = 'assignment'
+        if re.search(self.ifstart, token) != None:
+            category = 'if then start'
+        if re.search(self.ifif, token) != None:
+            category = 'if'
+        if re.search(self.elseif, token) != None:
+            category = 'else if'
+        if re.search(self.elsekey, token) != None:
+            category = 'else'
+        if re.search(self.flowend, token) != None:
+            category = 'flow control end'
+        if re.search(self.switchstart, token) != None:
+            category = 'switch start'
+        if re.search(self.switchcase, token) != None:
+            category = 'switch case'
+        if re.search(self.switchdef, token) != None:
+            category = 'switch default'
+        if re.search(self.loopstart, token) != None:
+            category = 'loop start'
+        if re.search(self.loopend, token) != None:
+            category = 'loop end'
+        if re.search(self.increment, token) != None:
+            category = 'increment'
+        if re.search(self.decrement, token) != None:
+            category = 'decrement'
+        if re.search(self.loopcond, token) != None:
+            category = 'loop condition'
+        if re.search(self.breakkey, token) != None:
+            category = 'break'
+        if re.search(self.funcstart, token) != None:
+            category = 'function start'
+        if re.search(self.funcend, token) != None:
+            category = 'function end'
+        if re.search(self.params, token) != None:
+            category = 'parameter'
+        if re.search(self.returnkey, token) != None:
+            category = 'function return'
+        if re.search(self.funccall, token) != None:
+            category = 'function call'
+        if re.search(self.linebreak, token) != None:
+            category = 'linebreak'
+
+        return [token, category]
 
 #testing
-LOLCODE_Interpreter().tokenize_line('SUM OF 5 AN 7 BTW MEOWMEOW MEOW\n') #SUM OF, 5, AN, 7\n
+tokens = LOLCODE_Interpreter().tokenize_line('SUM OF 5 AN 7 BTW MEOWMEOW MEOW\n') #SUM OF, 5, AN, 7\n
+for token in tokens:
+    print(LOLCODE_Interpreter().identify_token(token))
 LOLCODE_Interpreter().tokenize_line('ALL OF x AN y AN z MKAY\n') #ALL OF, x, AN, y, AN, z, MKAY\n
 LOLCODE_Interpreter().tokenize_line('BOTH SAEM x AN BIGGR OF x AN y\n') #BOTH SAEM, x, AN, BIGGR OF, x, AN, y\n
 LOLCODE_Interpreter().tokenize_line('VISIBLE "HELLO WORLD" + "MEOW MEOW"\n') #VISIBLE, "HELLO WORLD", +, "MEOW MEOW"\n
