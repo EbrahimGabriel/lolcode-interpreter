@@ -147,6 +147,7 @@ class LOLCODE_Interpreter(tk.Tk):
         #remove comments
         temp = re.sub(self.comments,  '', line)
         temp = re.sub('\n', '', temp)
+        temp = temp.lstrip()
 
         count = 0
         substrings = []
