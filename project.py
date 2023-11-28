@@ -231,5 +231,3 @@ LOLCODE_Interpreter().tokenize_line('VISIBLE "HELLO WORLD" + "MEOW MEOW"\n') #VI
 
 #starts the ui
 # LOLCODE_Interpreter().mainloop()
-
-#test-Rey
