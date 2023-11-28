@@ -16,9 +16,29 @@ class LOLCODE_Interpreter(tk.Tk):
         self.title("LOLCODE Lexer")
         self.geometry("500x500")
 
-        code_textbox = tk.Text(self, height = 12, width = 40)
-        code_textbox.pack(expand=True)
+        self.code_textbox = tk.Text(self, height = 12, width = 40)
         
+        outputframe = tk.Frame(self, height = 12, width = 40)
+        
+        self.listbox = tk.Listbox(outputframe)
+        self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar = tk.Scrollbar(outputframe)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.BOTH)
+        
+        self.listbox.config(yscrollcommand = scrollbar.set)
+        scrollbar.config(command = self.listbox.yview)
+
+        outputlabel = tk.Label(self, text="Lexemes")
+        outputlabel.pack()
+
+        input_button = tk.Button(self, text="Open File", command=lambda: self.select_input())
+        read_button = tk.Button(self, text="Read Code", command=lambda: self.read_textbox())
+
+        input_button.pack()
+        read_button.pack()
+        self.code_textbox.pack()
+        outputframe.pack()
+
         #contains identified lexemes and their tokens
         self.lexemes = []
 
@@ -69,7 +89,7 @@ class LOLCODE_Interpreter(tk.Tk):
         self.funccall = r'^I IZ$'
         self.linebreak = r'^\n$'
 
-        self.comments = r'(( BTW .*\n)|(OBTW .*\n)|(TLDR\n))'
+        self.comments = r'(( BTW .*)|(OBTW .*)|(TLDR))'
 
         #used in tokenizing
         self.spacedkeywords = [r'I HAS A ', r'SUM OF ', r'DIFF OF ', r'PRODUKT OF ', r'QUOSHUNT OF ', r'MOD OF '
@@ -91,7 +111,22 @@ class LOLCODE_Interpreter(tk.Tk):
         input_file = open(input_filename, "r")
         self.code = input_file.readlines()
         input_file.close()
+
+    def read_textbox(self):
+        self.code = self.code_textbox.get("1.0", tk.END)
+        self.code = re.split('\n', self.code)[:-1]
+        for line in self.code:
+            tokens = self.tokenize_line(line)
+            for token in tokens:
+                self.lexemes.append(self.identify_token(token))
+        self.display_lexemes()
     
+    def display_lexemes(self):
+        self.listbox.delete(0, tk.END)
+        for lexeme in self.lexemes:
+            self.listbox.insert(tk.END, lexeme[0] + ": " + lexeme[1])
+
+
     #tokenizes one line and returns its tokens
     def tokenize_line(self, line):
         #remove comments
@@ -125,7 +160,7 @@ class LOLCODE_Interpreter(tk.Tk):
             for j in range(len(tokens)):
                 if tokens[j] == tempstr:
                     tokens[j] = substrings[i]
-        tokens.append('\n')
+        # tokens.append('\n')
         return tokens
     
     #identifies a token
@@ -222,12 +257,17 @@ class LOLCODE_Interpreter(tk.Tk):
         return [token, category]
 
 #testing
-tokens = LOLCODE_Interpreter().tokenize_line('SUM OF 5 AN 7 BTW MEOWMEOW MEOW\n') #SUM OF, 5, AN, 7\n
-for token in tokens:
-    print(LOLCODE_Interpreter().identify_token(token))
-LOLCODE_Interpreter().tokenize_line('ALL OF x AN y AN z MKAY\n') #ALL OF, x, AN, y, AN, z, MKAY\n
-LOLCODE_Interpreter().tokenize_line('BOTH SAEM x AN BIGGR OF x AN y\n') #BOTH SAEM, x, AN, BIGGR OF, x, AN, y\n
-LOLCODE_Interpreter().tokenize_line('VISIBLE "HELLO WORLD" + "MEOW MEOW"\n') #VISIBLE, "HELLO WORLD", +, "MEOW MEOW"\n
+# tokens = LOLCODE_Interpreter().tokenize_line('SUM OF 5 AN 7 BTW MEOWMEOW MEOW\n') #SUM OF, 5, AN, 7\n
+# LOLCODE_Interpreter().tokenize_line('ALL OF x AN y AN z MKAY\n') #ALL OF, x, AN, y, AN, z, MKAY\n
+# LOLCODE_Interpreter().tokenize_line('BOTH SAEM x AN BIGGR OF x AN y\n') #BOTH SAEM, x, AN, BIGGR OF, x, AN, y\n
+# LOLCODE_Interpreter().tokenize_line('VISIBLE "HELLO WORLD" + "MEOW MEOW"\n') #VISIBLE, "HELLO WORLD", +, "MEOW MEOW"\n
+
+'''
+SUM OF 5 AN 7 BTW MEOWMEOW MEOW
+ALL OF x AN y AN z MKAY
+BOTH SAEM x AN BIGGR OF x AN y
+VISIBLE "HELLO WORLD" + "MEOW MEOW"
+'''
 
 #starts the ui
-# LOLCODE_Interpreter().mainloop()
+LOLCODE_Interpreter().mainloop()
