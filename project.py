@@ -18,6 +18,7 @@ class LOLCODE_Interpreter(tk.Tk):
 
         self.code_textbox = tk.Text(self, height = 12, width = 40)
         
+        #ui for the listbox of lexemes --
         outputframe = tk.Frame(self, height = 12, width = 40)
         
         self.listbox = tk.Listbox(outputframe)
@@ -29,18 +30,23 @@ class LOLCODE_Interpreter(tk.Tk):
         scrollbar.config(command = self.listbox.yview)
 
         outputlabel = tk.Label(self, text="Lexemes")
-        outputlabel.pack()
+        # --
 
         input_button = tk.Button(self, text="Open File", command=lambda: self.select_input())
         read_button = tk.Button(self, text="Read Code", command=lambda: self.read_textbox())
 
+        #place the widgets in this order
         input_button.pack()
         read_button.pack()
         self.code_textbox.pack()
+        outputlabel.pack()
         outputframe.pack()
 
         #contains identified lexemes and their tokens
         self.lexemes = []
+
+        #contains the lolcode script for reading
+        self.code = []
 
         #regexes to consider
         #categorized
@@ -110,13 +116,19 @@ class LOLCODE_Interpreter(tk.Tk):
         input_filename = filedialog.askopenfilename(initialdir = os.getcwd(), title = "Select a File", filetypes=(("LOLCODE files", "*.lol"), ("all files", "*.*")))
         input_file = open(input_filename, "r")
         self.code_textbox.delete("1.0", tk.END)
-        self.code_textbox.insert(input_file.readlines())
+        for line in input_file.readlines():
+            self.code_textbox.insert(tk.END, line)
         input_file.close()
 
     #reads the code in the textbox
     def read_textbox(self):
+        #get text and split
         self.code = self.code_textbox.get("1.0", tk.END)
-        self.code = re.split('\n', self.code)[:-1]
+        self.code = re.split('\n', self.code)
+        #magic list comprehension to remove instances of a value
+        self.code = [line for line in self.code if line != '']
+        #tokenize each line then identify lexemes
+        self.lexemes = []
         for line in self.code:
             tokens = self.tokenize_line(line)
             for token in tokens:
@@ -163,7 +175,6 @@ class LOLCODE_Interpreter(tk.Tk):
             for j in range(len(tokens)):
                 if tokens[j] == tempstr:
                     tokens[j] = substrings[i]
-        # tokens.append('\n')
         return tokens
     
     #identifies a token
