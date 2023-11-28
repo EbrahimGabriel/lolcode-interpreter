@@ -109,9 +109,11 @@ class LOLCODE_Interpreter(tk.Tk):
     def select_input(self):
         input_filename = filedialog.askopenfilename(initialdir = os.getcwd(), title = "Select a File", filetypes=(("LOLCODE files", "*.lol"), ("all files", "*.*")))
         input_file = open(input_filename, "r")
-        self.code = input_file.readlines()
+        self.code_textbox.delete("1.0", tk.END)
+        self.code_textbox.insert(input_file.readlines())
         input_file.close()
 
+    #reads the code in the textbox
     def read_textbox(self):
         self.code = self.code_textbox.get("1.0", tk.END)
         self.code = re.split('\n', self.code)[:-1]
@@ -121,6 +123,7 @@ class LOLCODE_Interpreter(tk.Tk):
                 self.lexemes.append(self.identify_token(token))
         self.display_lexemes()
     
+    #adds the lexemes to the listbox
     def display_lexemes(self):
         self.listbox.delete(0, tk.END)
         for lexeme in self.lexemes:
