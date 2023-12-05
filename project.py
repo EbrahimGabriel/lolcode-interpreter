@@ -248,7 +248,13 @@ class LOLCODE_Interpreter(tk.Tk):
             tokens = self.tokenize_line(line)
             for token in tokens:
                 self.lexemes.append(self.identify_token(token))
+                
         self.display_lexemes()
+        
+        # Print lexeme array containing sub-arrays of token and category
+        # self.lexemes = ['token', 'category'],...
+        for lexeme in self.lexemes:
+            print(lexeme)
 
     # # adds the lexemes to the listbox
     # def display_lexemes(self):
