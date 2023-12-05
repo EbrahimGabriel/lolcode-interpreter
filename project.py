@@ -25,7 +25,6 @@ class LOLCODE_Interpreter(tk.Tk):
         x_position = int((screen_width - window_width) / 2)
         y_position = int((screen_height - window_height) / 2)
 
-
         self.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
         self.resizable(False, False)
 
@@ -96,17 +95,6 @@ class LOLCODE_Interpreter(tk.Tk):
         # Create a label below the Listbox and Scrollbar
         self.label_listbox = tk.Label(frame_middle_2, text="Lexemes", font=("Helvetica", 12), bg="lightgray")
         self.label_listbox.pack()
-        #
-        # # Create a Listbox inside frame_middle_2
-        # self.listbox = tk.Listbox(frame_middle_2, font=("Helvetica", 12), selectmode=tk.SINGLE)
-        # self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        #
-        # # Create a Scrollbar for the Listbox
-        # self.scrollbar_middle_2 = tk.Scrollbar(frame_middle_2, command=self.listbox.yview)
-        # self.scrollbar_middle_2.pack(side=tk.RIGHT, fill=tk.Y)
-        #
-        # # Configure the Listbox to use the Scrollbar
-        # self.listbox.config(yscrollcommand=self.scrollbar_middle_2.set)
 
         # Create a Treeview widget inside frame_middle_2
         self.tree = ttk.Treeview(frame_middle_2, columns=("Column1", "Column2"), show="headings")
@@ -135,10 +123,6 @@ class LOLCODE_Interpreter(tk.Tk):
         self.frame_execute = tk.Frame(self, width=window_width - 20, height=height_execute, bd=2, bg="lightgray")
         self.frame_execute.place(x=10, y=height_top + height_middle + 30)
         self.frame_execute.pack_propagate(False)
-
-        # # Create a frame for the execute widget
-        # execute_widget = tk.Label(frame_execute, text="Execute Widget", font=("Helvetica", 12))
-        # execute_widget.pack(expand=True, fill=tk.BOTH)
 
         # Create a button for file selection
         read_button = tk.Button(self.frame_execute, text="Execute", font=("Helvetica", 12), command=lambda: self.read_textbox(),
@@ -255,12 +239,6 @@ class LOLCODE_Interpreter(tk.Tk):
         # self.lexemes = ['token', 'category'],...
         for lexeme in self.lexemes:
             print(lexeme)
-
-    # # adds the lexemes to the listbox
-    # def display_lexemes(self):
-    #     self.listbox.delete(0, tk.END)
-    #     for lexeme in self.lexemes:
-    #         self.listbox.insert(tk.END, lexeme[0] + ": " + lexeme[1])
 
     def display_lexemes(self):
         # Clear existing items in the Treeview
