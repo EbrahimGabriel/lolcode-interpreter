@@ -221,44 +221,6 @@ class LOLCODE_Interpreter(tk.Tk):
         NUMBAR, NUMBR, YARN regex literals were changed to remove leading zeroes from NUMBR/NUMBARS and disallow " chars inside the YARN 
         '''
 
-        # -=================PARSER====================-
-
-    def parse(self):
-        #init parse tree
-        self.parsetree = ParseTree
-        head = Node("program")
-        head.children = ["program start", "statement", "program end"]
-        self.parsetree.head = head
-
-        #grammar rules
-        i = 0
-        #check if started and ended with HAI and KTHXBYE
-        programstart = 0
-        programend = 0
-
-        currcateg = self.parsetree.head.value
-        while i in range(len(self.lexemes)):
-            #start with HAI
-            if i == 0:
-                if self.lexemes[i][1] != "program start":
-                    print("Error")
-                else: 
-                    programstart = 1
-            #end with HAI
-            if i == len(self.lexemes)-1:
-                if self.lexemes[i][1] != "program end":
-                    print("Error")
-                else: 
-                    programend = 1
-            #catch HAI ... HAI
-            if programstart == 1 and self.lexemes[i][1] == "program start":
-                print("Error")
-            #catch KTHXBYE ... any
-            if programend == 1 and i < len(self.lexemes):
-                print("Error")
-            
-        # -===========================================-
-
     # open a lolcode file
     def select_input(self):
         input_filename = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select a File",

@@ -2,8 +2,21 @@ class Node:
     def __init__(self, value):
         self.value = value
         self.children = []
-    def __str__(self):
-        return f'[{self.value}, {self.children}]'
+    
+    # Print in array form
+    #def __str__(self):
+    #    return f'[{self.value}, {self.children}]'
+    
+    #Print in tree form
+    def __str__(self, level=0):
+        ret = "\t" * level + f"[{repr(self.value)}]\n"
+        for child in self.children:
+            if isinstance(child, Node):
+                ret += child.__str__(level + 1)
+            else:
+                ret += "\t" * (level + 1) + f"[{repr(child)}]\n"
+        return ret
+    
     def __repr__(self):
         return f'[{self.value}, {self.children}]'
 
