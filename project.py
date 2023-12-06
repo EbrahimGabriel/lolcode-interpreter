@@ -9,6 +9,14 @@ import os as os
 import tkinter as tk
 from tkinter import filedialog, ttk
 
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.children = []
+
+class ParseTree:
+    def __init__(self):
+        self.head
 
 class LOLCODE_Interpreter(tk.Tk):
     def __init__(self):
@@ -145,6 +153,8 @@ class LOLCODE_Interpreter(tk.Tk):
         # contains the lolcode script for reading
         self.code = []
 
+        # -=================LEXER=====================-
+
         # regexes to consider
         # categorized
         self.identifiers = r'^([a-zA-Z][a-zA-Z0-9_]*)$'
@@ -203,11 +213,51 @@ class LOLCODE_Interpreter(tk.Tk):
 
         self.spacedyarn = r'"[^"]*"'
 
+        # -===========================================-
+
         '''
         notes:
         + is the concat operator for VISIBLE
         NUMBAR, NUMBR, YARN regex literals were changed to remove leading zeroes from NUMBR/NUMBARS and disallow " chars inside the YARN 
         '''
+
+        # -=================PARSER====================-
+
+    def parse(self):
+        #init parse tree
+        self.parsetree = ParseTree
+        head = Node("program")
+        head.children = ["program start", "statement", "program end"]
+        self.parsetree.head = head
+
+        #grammar rules
+        i = 0
+        #check if started and ended with HAI and KTHXBYE
+        programstart = 0
+        programend = 0
+
+        currcateg = self.parsetree.head.value
+        while i in range(len(self.lexemes)):
+            #start with HAI
+            if i == 0:
+                if self.lexemes[i][1] != "program start":
+                    print("Error")
+                else: 
+                    programstart = 1
+            #end with HAI
+            if i == len(self.lexemes)-1:
+                if self.lexemes[i][1] != "program end":
+                    print("Error")
+                else: 
+                    programend = 1
+            #catch HAI ... HAI
+            if programstart == 1 and self.lexemes[i][1] == "program start":
+                print("Error")
+            #catch KTHXBYE ... any
+            if programend == 1 and i < len(self.lexemes):
+                print("Error")
+            
+        # -===========================================-
 
     # open a lolcode file
     def select_input(self):
@@ -234,6 +284,10 @@ class LOLCODE_Interpreter(tk.Tk):
                 self.lexemes.append(self.identify_token(token))
                 
         self.display_lexemes()
+
+        #-----------
+        self.parse()
+        #-----------
         
         # Print lexeme array containing sub-arrays of token and category
         # self.lexemes = ['token', 'category'],...
