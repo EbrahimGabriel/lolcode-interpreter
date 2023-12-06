@@ -260,6 +260,7 @@ class LOLCODE_Interpreter(tk.Tk):
                     print("Error")
                 else: 
                     programstart = 1
+                    
             #end with HAI
             if i == len(self.lexemes)-1:
                 if self.lexemes[i][1] != "program end":
