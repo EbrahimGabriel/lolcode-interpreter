@@ -7,7 +7,7 @@ Cid Jezreel Ceradoy, Ebrahim Gabriel, Reynaldo Isaac Jr.
 import re
 import os as os
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, ttk
 
 class Node:
     def __init__(self, value):
@@ -20,49 +20,159 @@ class ParseTree:
 
 class LOLCODE_Interpreter(tk.Tk):
     def __init__(self):
-        #ui stuff
+        # ui stuff
         tk.Tk.__init__(self)
         self.title("LOLCODE Lexer")
-        self.geometry("500x500")
 
-        self.code_textbox = tk.Text(self, height = 12, width = 40)
-        
-        #ui for the listbox of lexemes --
-        outputframe = tk.Frame(self, height = 12, width = 40)
-        
-        self.listbox = tk.Listbox(outputframe)
-        self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar = tk.Scrollbar(outputframe)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.BOTH)
-        
-        self.listbox.config(yscrollcommand = scrollbar.set)
-        scrollbar.config(command = self.listbox.yview)
+        window_width = 1280
+        window_height = 600
 
-        outputlabel = tk.Label(self, text="Lexemes")
-        # --
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
 
-        input_button = tk.Button(self, text="Open File", command=lambda: self.select_input())
-        read_button = tk.Button(self, text="Read Code", command=lambda: self.read_textbox())
+        x_position = int((screen_width - window_width) / 2)
+        y_position = int((screen_height - window_height) / 2)
 
-        #place the widgets in this order
+
+        self.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+        self.resizable(False, False)
+
+        # Calculate frame heights based on the specified ratios
+        height_top = (window_height) // 10
+        height_middle = (4 * window_height) // 10
+        height_execute = (window_height) // 10
+        height_bottom = (5 * window_height) // 10
+
+        # Calculate frame widths based on the specified ratios
+        width_top_left = (window_width - 20) // 3
+        width_top_right = 2 * (window_width - 20) // 3
+
+        # Calculate frame widths for frame_middle components
+        width_middle_1 = (window_width - 20) // 3
+        width_middle_2 = (window_width - 20) // 3
+        width_middle_3 = (window_width - 20) // 3
+
+        # Create a frame for the top area (1/10 height)
+        frame_top = tk.Frame(self, width=window_width - 20, height=height_top, bd=2)
+        frame_top.place(x=10, y=10)
+        frame_top.pack_propagate(False)
+
+        # Create a frame for the top left area (1/3 width) with a margin
+        frame_top_left = tk.Frame(frame_top, width=width_top_left - 10, height=height_top - 10, bd=2, bg="lightgray")
+        frame_top_left.place(x=5, y=5)
+        frame_top_left.pack_propagate(False)
+
+        # Create a button for file selection
+        input_button = tk.Button(frame_top_left, text="Open File", font=("Helvetica", 12), command=lambda: self.select_input(),
+                                 width=width_top_left - 10, height=height_top - 10)
         input_button.pack()
-        read_button.pack()
-        self.code_textbox.pack()
-        outputlabel.pack()
-        outputframe.pack()
 
-        #contains identified lexemes and their tokens
+        # Create a frame for the top right area (2/3 width) with a margin
+        frame_top_right = tk.Frame(frame_top, width=width_top_right - 10, height=height_top - 10, bd=2, bg="lightgray")
+        frame_top_right.place(x=width_top_left + 5, y=5)
+        frame_top_right.pack_propagate(False)
+
+        # Create a frame for widget 1.5
+        widget1 = tk.Label(frame_top_right, text="Widget 1.5", font=("Helvetica", 12))
+        widget1.pack(expand=True, fill=tk.BOTH)
+
+        # Create a frame for the middle area (4/10 height)
+        frame_middle = tk.Frame(self, width=window_width - 20, height=height_middle, bd=2)
+        frame_middle.place(x=10, y=height_top + 20)
+        frame_middle.pack_propagate(False)
+
+        # Create a frame for middle component 1 (1/3 width) with a margin
+        frame_middle_1 = tk.Frame(frame_middle, width=width_middle_1 - 10, height=height_middle - 10, bd=2,
+                                  bg="lightgray")
+        frame_middle_1.place(x=5, y=5)
+        frame_middle_1.pack_propagate(False)
+
+        # Create a text box inside frame_middle_1
+        self.code_textbox = tk.Text(frame_middle_1, wrap=tk.WORD, font=("Helvetica", 12))
+        self.code_textbox.pack(fill=tk.BOTH, expand=True)
+
+        # Create a frame for middle component 2 (1/3 width) with a margin
+        frame_middle_2 = tk.Frame(frame_middle, width=width_middle_2 - 10, height=height_middle - 10, bd=2,
+                                  bg="lightgray")
+        frame_middle_2.place(x=width_middle_1 + 5, y=5)
+        frame_middle_2.pack_propagate(False)
+
+        # # Create a frame for widget 4
+        # widget4 = tk.Label(frame_middle_2, text="Widget 4", font=("Helvetica", 12))
+        # widget4.pack(expand=True, fill=tk.BOTH)
+
+        # Create a label below the Listbox and Scrollbar
+        self.label_listbox = tk.Label(frame_middle_2, text="Lexemes", font=("Helvetica", 12), bg="lightgray")
+        self.label_listbox.pack()
+        #
+        # # Create a Listbox inside frame_middle_2
+        # self.listbox = tk.Listbox(frame_middle_2, font=("Helvetica", 12), selectmode=tk.SINGLE)
+        # self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        #
+        # # Create a Scrollbar for the Listbox
+        # self.scrollbar_middle_2 = tk.Scrollbar(frame_middle_2, command=self.listbox.yview)
+        # self.scrollbar_middle_2.pack(side=tk.RIGHT, fill=tk.Y)
+        #
+        # # Configure the Listbox to use the Scrollbar
+        # self.listbox.config(yscrollcommand=self.scrollbar_middle_2.set)
+
+        # Create a Treeview widget inside frame_middle_2
+        self.tree = ttk.Treeview(frame_middle_2, columns=("Column1", "Column2"), show="headings")
+        self.tree.heading("Column1", text="Column 1")
+        self.tree.heading("Column2", text="Column 2")
+        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Create a Scrollbar for the Treeview
+        self.scrollbar_middle_2 = tk.Scrollbar(frame_middle_2, command=self.tree.yview)
+        self.scrollbar_middle_2.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Configure the Treeview to use the Scrollbar
+        self.tree.config(yscrollcommand=self.scrollbar_middle_2.set)
+
+        # Create a frame for middle component 3 (1/3 width) with a margin
+        self.frame_middle_3 = tk.Frame(frame_middle, width=width_middle_3 - 10, height=height_middle - 10, bd=2,
+                                  bg="lightgray")
+        self.frame_middle_3.place(x=width_middle_1 + width_middle_2 + 5, y=5)
+        self.frame_middle_3.pack_propagate(False)
+
+        # Create a frame for widget 5
+        widget5 = tk.Label(self.frame_middle_3, text="Widget 5", font=("Helvetica", 12))
+        widget5.pack(expand=True, fill=tk.BOTH)
+
+        # Create a frame for the execute area (1/10 height)
+        self.frame_execute = tk.Frame(self, width=window_width - 20, height=height_execute, bd=2, bg="lightgray")
+        self.frame_execute.place(x=10, y=height_top + height_middle + 30)
+        self.frame_execute.pack_propagate(False)
+
+        # # Create a frame for the execute widget
+        # execute_widget = tk.Label(frame_execute, text="Execute Widget", font=("Helvetica", 12))
+        # execute_widget.pack(expand=True, fill=tk.BOTH)
+
+        # Create a button for file selection
+        read_button = tk.Button(self.frame_execute, text="Execute", font=("Helvetica", 12), command=lambda: self.read_textbox(),
+                                width=window_width - 10,
+                                height=height_execute)
+        read_button.pack()
+
+        # Create a frame for the bottom area (5/10 height) with a 10-pixel bottom margin
+        frame_bottom = tk.Frame(self, width=window_width - 20, height=height_bottom / 1.6, bd=2, bg="lightgray")
+        frame_bottom.place(x=10, y=height_top + height_middle + 40 + height_execute)
+        frame_bottom.pack_propagate(False)
+
+        # Create a frame for widget 3
+        widget3 = tk.Label(frame_bottom, text="Widget 3", font=("Helvetica", 12))
+        widget3.pack(expand=True, fill=tk.BOTH)
+
+        # contains identified lexemes and their tokens
         self.lexemes = []
 
-        #contains the lolcode script for reading
+        # contains the lolcode script for reading
         self.code = []
 
         # -=================LEXER=====================-
 
-        #regexes to consider
-        #categorized
-        
-        self.comments = r'(( BTW .*)|(OBTW .*)|(TLDR))'
+        # regexes to consider
+        # categorized
         self.identifiers = r'^([a-zA-Z][a-zA-Z0-9_]*)$'
         self.numbr = r'^((-?[1-9]+)|(0))$'
         self.numbar = r'^((-?[1-9][0-9]*\.[0.9]+)|(-?[0\.[0.9]+))$'
@@ -108,21 +218,25 @@ class LOLCODE_Interpreter(tk.Tk):
         self.funccall = r'^I IZ$'
         self.linebreak = r'^\n$'
 
+        self.comments = r'(( BTW .*)|(OBTW .*)|(TLDR))'
 
-        #used in tokenizing
+        # used in tokenizing
         self.spacedkeywords = [r'I HAS A ', r'SUM OF ', r'DIFF OF ', r'PRODUKT OF ', r'QUOSHUNT OF ', r'MOD OF '
-        , r'BIGGR OF ', r'SMALLR OF ', r'BOTH OF ', r'EITHER OF ', r'WON OF ', r'ANY OF ', r'ALL OF ', r'BOTH SAEM '
-        , r'IS NOW A ', r'O RLY\? ', r'YA RLY ', r'NO WAI ', r'IM IN YR ', r'IM OUTTA YR ', r'HOW IZ I ', r'IF U SAY SO '
-        , r'FOUND YR ', r'I IZ ']
+            , r'BIGGR OF ', r'SMALLR OF ', r'BOTH OF ', r'EITHER OF ', r'WON OF ', r'ANY OF ', r'ALL OF ', r'BOTH SAEM '
+            , r'IS NOW A ', r'O RLY\? ', r'YA RLY ', r'NO WAI ', r'IM IN YR ', r'IM OUTTA YR ', r'HOW IZ I ',
+                               r'IF U SAY SO '
+            , r'FOUND YR ', r'I IZ ']
 
         self.spacedyarn = r'"[^"]*"'
 
         # -===========================================-
+
         '''
         notes:
         + is the concat operator for VISIBLE
         NUMBAR, NUMBR, YARN regex literals were changed to remove leading zeroes from NUMBR/NUMBARS and disallow " chars inside the YARN 
         '''
+
         # -=================PARSER====================-
 
     def parse(self):
@@ -139,7 +253,7 @@ class LOLCODE_Interpreter(tk.Tk):
         programend = 0
 
         currcateg = self.parsetree.head.value
-        while i in range(len(self.lexemes)):
+        for i in range(len(self.lexemes)):
             #start with HAI
             if i == 0:
                 if self.lexemes[i][1] != "program start":
@@ -161,81 +275,94 @@ class LOLCODE_Interpreter(tk.Tk):
             
         # -===========================================-
 
-    #open a lolcode file
+    # open a lolcode file
     def select_input(self):
-        input_filename = filedialog.askopenfilename(initialdir = os.getcwd(), title = "Select a File", filetypes=(("LOLCODE files", "*.lol"), ("all files", "*.*")))
+        input_filename = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select a File",
+                                                    filetypes=(("LOLCODE files", "*.lol"), ("all files", "*.*")))
         input_file = open(input_filename, "r")
         self.code_textbox.delete("1.0", tk.END)
         for line in input_file.readlines():
             self.code_textbox.insert(tk.END, line)
         input_file.close()
 
-    #reads the code in the textbox
+    # reads the code in the textbox
     def read_textbox(self):
-        #get text and split
+        # get text and split
         self.code = self.code_textbox.get("1.0", tk.END)
         self.code = re.split('\n', self.code)
-        #magic list comprehension to remove instances of a value
+        # magic list comprehension to remove instances of a value
         self.code = [line for line in self.code if line != '']
-        #tokenize each line then identify lexemes
+        # tokenize each line then identify lexemes
         self.lexemes = []
         for line in self.code:
             tokens = self.tokenize_line(line)
             for token in tokens:
                 self.lexemes.append(self.identify_token(token))
+                
         self.display_lexemes()
 
-    #-----------
+        #-----------
         self.parse()
-    #-----------
-    
-    #adds the lexemes to the listbox
-    def display_lexemes(self):
-        self.listbox.delete(0, tk.END)
+        #-----------
+        
+        # Print lexeme array containing sub-arrays of token and category
+        # self.lexemes = ['token', 'category'],...
         for lexeme in self.lexemes:
-            self.listbox.insert(tk.END, lexeme[0] + ": " + lexeme[1])
+            print(lexeme)
 
-    #tokenizes one line and returns its tokens
+    # # adds the lexemes to the listbox
+    # def display_lexemes(self):
+    #     self.listbox.delete(0, tk.END)
+    #     for lexeme in self.lexemes:
+    #         self.listbox.insert(tk.END, lexeme[0] + ": " + lexeme[1])
+
+    def display_lexemes(self):
+        # Clear existing items in the Treeview
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        # Insert lexemes into the Treeview
+        for lexeme in self.lexemes:
+            self.tree.insert("", tk.END, values=(lexeme[0], lexeme[1]))
+
+    # tokenizes one line and returns its tokens
     def tokenize_line(self, line):
-        #remove comments
-        #!!!required daw lumabas yung comments sa lexer!!!
-        temp = re.sub(self.comments,  '', line) 
-        temp = re.sub('\n', '', line)
+        # remove comments
+        temp = re.sub(self.comments, '', line)
+        temp = re.sub('\n', '', temp)
         temp = temp.lstrip()
 
         count = 0
         substrings = []
-        #get spaced keywords
+        # get spaced keywords
         for regex in self.spacedkeywords:
-            #extract the spaced keywords and place them in list to return them later
+            # extract the spaced keywords and place them in list to return them later
             if re.search(regex, temp) != None:
                 regexstring = regex[:-1]
-                temp = re.sub(regex, "{"+str(count)+"} ", temp)
+                temp = re.sub(regex, "{" + str(count) + "} ", temp)
                 count = count + 1
                 substrings.append(regexstring)
-        
-        #get YARNs with spaces between
+
+        # get YARNs with spaces between
         yarn = re.findall(self.spacedyarn, temp)
-        if yarn: 
+        if yarn:
             for match in yarn:
-                temp = re.sub(self.spacedyarn, "{"+str(count)+"}", temp, 1)
-                count = count+1
+                temp = re.sub(self.spacedyarn, "{" + str(count) + "}", temp, 1)
+                count = count + 1
                 substrings.append(match)
-        
-        #split the line into its tokens, then return the spaced keywords to their original place
+
+        # split the line into its tokens, then return the spaced keywords to their original place
         tokens = re.split(' ', temp)
         for i in range(len(substrings)):
-            tempstr = "{"+str(i)+"}"
-            tempstr2 = "{"+str(i)+"}\n"
+            tempstr = "{" + str(i) + "}"
+            tempstr2 = "{" + str(i) + "}\n"
             for j in range(len(tokens)):
                 if tokens[j] == tempstr:
                     tokens[j] = substrings[i]
         return tokens
-    
-    #identifies a token
+
+    # identifies a token
     def identify_token(self, token):
-        if re.search(self.comments, token) != None:
-            category = 'comment'
         if re.search(self.identifiers, token) != None:
             category = 'identifier'
         if re.search(self.numbr, token) != None:
@@ -244,6 +371,7 @@ class LOLCODE_Interpreter(tk.Tk):
             category = 'numbar'
         if re.search(self.yarn, token) != None:
             category = 'yarn'
+            return [token[1:-1], category]
         if re.search(self.troof, token) != None:
             category = 'troof'
         if re.search(self.datatype, token) != None:
@@ -327,6 +455,13 @@ class LOLCODE_Interpreter(tk.Tk):
 
         return [token, category]
 
+
+# testing
+# tokens = LOLCODE_Interpreter().tokenize_line('SUM OF 5 AN 7 BTW MEOWMEOW MEOW\n') #SUM OF, 5, AN, 7\n
+# LOLCODE_Interpreter().tokenize_line('ALL OF x AN y AN z MKAY\n') #ALL OF, x, AN, y, AN, z, MKAY\n
+# LOLCODE_Interpreter().tokenize_line('BOTH SAEM x AN BIGGR OF x AN y\n') #BOTH SAEM, x, AN, BIGGR OF, x, AN, y\n
+# LOLCODE_Interpreter().tokenize_line('VISIBLE "HELLO WORLD" + "MEOW MEOW"\n') #VISIBLE, "HELLO WORLD", +, "MEOW MEOW"\n
+
 '''
 SUM OF 5 AN 7 BTW MEOWMEOW MEOW
 ALL OF x AN y AN z MKAY
@@ -334,12 +469,5 @@ BOTH SAEM x AN BIGGR OF x AN y
 VISIBLE "HELLO WORLD" + "MEOW MEOW"
 '''
 
-'''
-HAI
-VISIBLE "HELLO WORLD"
-SUM OF 5 AN 7
-KTHXBYE
-'''
-
-#starts the ui
+# starts the ui
 LOLCODE_Interpreter().mainloop()
