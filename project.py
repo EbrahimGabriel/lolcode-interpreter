@@ -9,15 +9,6 @@ import os as os
 import tkinter as tk
 from tkinter import filedialog, ttk
 
-class Node:
-    def __init__(self, value):
-        self.value = value
-        self.children = []
-
-class ParseTree:
-    def __init__(self):
-        self.head
-
 class LOLCODE_Interpreter(tk.Tk):
     def __init__(self):
         # ui stuff
@@ -152,11 +143,12 @@ class LOLCODE_Interpreter(tk.Tk):
 
         # contains the lolcode script for reading
         self.code = []
-
+        self.lines = []
         # -=================LEXER=====================-
 
         # regexes to consider
         # categorized
+        ###CHANGE THE MULTIPLE x | y | z TO ONE LINE EACH
         self.identifiers = r'^([a-zA-Z][a-zA-Z0-9_]*)$'
         self.numbr = r'^((-?[1-9]+)|(0))$'
         self.numbar = r'^((-?[1-9][0-9]*\.[0.9]+)|(-?[0\.[0.9]+))$'
@@ -172,12 +164,19 @@ class LOLCODE_Interpreter(tk.Tk):
         self.input = r'^GIMMEH$'
         self.output = r'^VISIBLE$'
         self.concatoperator = r'^\+$'
-        self.arithmetic = r'^(SUM OF|DIFF OF|PRODUKT OF|QUOSHUNT OF|MOD OF|BIGGR OF|SMALLR OF)$'
+        self.addition = r'^SUM OF$'
+        self.difference = r'^DIFF OF$'
+        self.multiplication = r'^PRODUKT OF$'
+        self.division = r'^QUOSHUNT OF$'
+        self.modulo = r'^MOD OF$'
+        self.max = r'^BIGGR OF$'
+        self.min = r'^SMALLR OF$'
         self.opsep = r'^AN$'
         self.concat = r'^SMOOSH$'
-        self.boolean = r'^(BOTH OF|EITHER OF|WON OF|NOT|ALL OF|ANY OF)$'
+        self.boolean = r'^(BOTH OF|EITHER OF|WON OF|NOT|ALL OF|ANY OF)$' 
         self.endlist = r'^MKAY$'
-        self.comparison = r'^(BOTH SAEM|DIFFRINT)$'
+        self.compareequal = r'^BOTH SAEM$'
+        self.comparediff = r'^DIFFRINT$'
         self.typecast = r'^MAEK$'
         self.recast = r'^IS NOW A$'
         self.assign = r'^R$'
@@ -193,7 +192,8 @@ class LOLCODE_Interpreter(tk.Tk):
         self.loopend = r'^IM OUTTA YR$'
         self.increment = r'^UPPIN$'
         self.decrement = r'^NERFIN$'
-        self.loopcond = r'^(TIL|WILE)$'
+        self.loopcondfor = r'^TIL$'
+        self.loopcondwhile = r'^WILE$'
         self.breakkey = r'^GTFO$'
         self.funcstart = r'^HOW IZ I$'
         self.funcend = r'^IF U SAY SO$'
@@ -202,15 +202,18 @@ class LOLCODE_Interpreter(tk.Tk):
         self.funccall = r'^I IZ$'
         self.linebreak = r'^\n$'
 
-        self.comments = r'(( BTW .*)|(OBTW .*)|(TLDR))'
+        self.singlecomments = r'BTW .*'
+        self.multicommentstart = r'OBTW .*'
+        self.multicommentend = r'TLDR'
 
         # used in tokenizing
         self.spacedkeywords = [r'I HAS A ', r'SUM OF ', r'DIFF OF ', r'PRODUKT OF ', r'QUOSHUNT OF ', r'MOD OF '
             , r'BIGGR OF ', r'SMALLR OF ', r'BOTH OF ', r'EITHER OF ', r'WON OF ', r'ANY OF ', r'ALL OF ', r'BOTH SAEM '
-            , r'IS NOW A ', r'O RLY\? ', r'YA RLY ', r'NO WAI ', r'IM IN YR ', r'IM OUTTA YR ', r'HOW IZ I ',
-                               r'IF U SAY SO '
-            , r'FOUND YR ', r'I IZ ']
-
+            , r'IS NOW A ', r'O RLY\? ', r'YA RLY ', r'NO WAI ', r'IM IN YR ', r'IM OUTTA YR ', r'HOW IZ I ', r'IF U SAY SO '
+            , r'FOUND YR ', r'I IZ ', r'BTW .*', r'OBTW .*', r'TLDR']
+        ##
+        ## FIX THE COMMENT THING IN TOKENS
+        ##
         self.spacedyarn = r'"[^"]*"'
 
         # -===========================================-
@@ -235,26 +238,28 @@ class LOLCODE_Interpreter(tk.Tk):
     def read_textbox(self):
         # get text and split
         self.code = self.code_textbox.get("1.0", tk.END)
-        self.code = re.split('\n', self.code)
+        delimiter = '\n'
+        self.code = [s+delimiter for s in re.split('\n', self.code) if s]
+
         # magic list comprehension to remove instances of a value
         self.code = [line for line in self.code if line != '']
         # tokenize each line then identify lexemes
         self.lexemes = []
         for line in self.code:
             tokens = self.tokenize_line(line)
+            temp = []
             for token in tokens:
-                self.lexemes.append(self.identify_token(token))
+                lexeme = self.identify_token(token)
+                self.lexemes.append(lexeme)
+                temp.append(lexeme)
+            self.lines.append(temp)
                 
         self.display_lexemes()
-
-        #-----------
-        self.parse()
-        #-----------
-        
+        print(self.lines)
         # Print lexeme array containing sub-arrays of token and category
         # self.lexemes = ['token', 'category'],...
-        for lexeme in self.lexemes:
-            print(lexeme)
+        # for lexeme in self.lexemes:
+            # print(lexeme)
 
     def display_lexemes(self):
         # Clear existing items in the Treeview
@@ -267,14 +272,19 @@ class LOLCODE_Interpreter(tk.Tk):
 
     # tokenizes one line and returns its tokens
     def tokenize_line(self, line):
+        
+        ##REMOVE LATER ON
         # remove comments
-        temp = re.sub(self.comments, '', line)
-        temp = re.sub('\n', '', temp)
-        temp = temp.lstrip()
+        temp = re.sub(self.singlecomments, '', line)
+        ##
+
+        temp = line.lstrip()
+        temp = re.sub('\n', ' \n', temp)
 
         count = 0
         substrings = []
-        # get spaced keywords
+
+        # get spaced keywords ####COMMENTS ARENT READ PROPERLY SO I REMOVED THEM FORNOW
         for regex in self.spacedkeywords:
             # extract the spaced keywords and place them in list to return them later
             if re.search(regex, temp) != None:
@@ -295,9 +305,11 @@ class LOLCODE_Interpreter(tk.Tk):
         tokens = re.split(' ', temp)
         for i in range(len(substrings)):
             tempstr = "{" + str(i) + "}"
-            tempstr2 = "{" + str(i) + "}\n"
+            tempstr2 = "{" + str(i) + "} \n"
             for j in range(len(tokens)):
                 if tokens[j] == tempstr:
+                    tokens[j] = substrings[i]
+                if tokens[j] == tempstr2:
                     tokens[j] = substrings[i]
         return tokens
 
@@ -333,8 +345,20 @@ class LOLCODE_Interpreter(tk.Tk):
             category = 'output'
         if re.search(self.concatoperator, token) != None:
             category = 'concatenation operator (VISIBLE)'
-        if re.search(self.arithmetic, token) != None:
-            category = 'arithmetic'
+        if re.search(self.addition, token) != None:
+            category = 'addition'
+        if re.search(self.difference, token) != None:
+            category = 'difference'
+        if re.search(self.multiplication, token) != None:
+            category = 'multiplication'
+        if re.search(self.division, token) != None:
+            category = 'division'
+        if re.search(self.modulo, token) != None:
+            category = 'modulo'
+        if re.search(self.max, token) != None:
+            category = 'max'
+        if re.search(self.min, token) != None:
+            category = 'min'
         if re.search(self.opsep, token) != None:
             category = 'operand separator'
         if re.search(self.concat, token) != None:
@@ -343,8 +367,10 @@ class LOLCODE_Interpreter(tk.Tk):
             category = 'boolean'
         if re.search(self.endlist, token) != None:
             category = 'end of operands'
-        if re.search(self.comparison, token) != None:
-            category = 'comparison'
+        if re.search(self.compareequal, token) != None:
+            category = 'compare equal'
+        if re.search(self.comparediff, token) != None:
+            category = 'compare diff'
         if re.search(self.typecast, token) != None:
             category = 'typecast'
         if re.search(self.recast, token) != None:
@@ -375,8 +401,10 @@ class LOLCODE_Interpreter(tk.Tk):
             category = 'increment'
         if re.search(self.decrement, token) != None:
             category = 'decrement'
-        if re.search(self.loopcond, token) != None:
-            category = 'loop condition'
+        if re.search(self.loopcondfor, token) != None:
+            category = 'for condition'
+        if re.search(self.loopcondwhile, token) != None:
+            category = 'while condition'
         if re.search(self.breakkey, token) != None:
             category = 'break'
         if re.search(self.funcstart, token) != None:
@@ -391,6 +419,13 @@ class LOLCODE_Interpreter(tk.Tk):
             category = 'function call'
         if re.search(self.linebreak, token) != None:
             category = 'linebreak'
+        if re.search(self.singlecomments, token) != None:
+            category = 'comment'
+        if re.search(self.multicommentstart, token) != None:
+            category = 'start multi comment'
+        if re.search(self.multicommentend, token) != None:
+            category = 'end multi comment'
+                
 
         return [token, category]
 
