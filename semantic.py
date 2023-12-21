@@ -11,6 +11,14 @@ class Semantic:
         self.operation_categories = ['variable declaration', 'addition', 'boolean', 'compare equal', 'max', 'output']
         self.arithmetic_categories = [''] #FILL IN LATER FOR NESTING 
 
+    def read_code(self):
+        while not self.error and not self.end:
+            for line in self.tokens:
+                # print(line)
+                self.check_operation(line)
+        
+        #do error related stuff here
+    
     def check_operation(self, args):
         # print(args)
         if args[0][1] in self.operation_categories:
@@ -28,15 +36,8 @@ class Semantic:
                 self.lol_print(args)
         if args[0][1] == 'program end':
             self.end = True
-    
-    def read_code(self):
-        while not self.error and not self.end:
-            for line in self.tokens:
-                # print(line)
-                self.check_operation(line)
-        
-        #do error related stuff here
-    
+
+    #SYMBOL TABLE ONLY HAS VARIABLES IN IT NOW, NO IMPLEMENTATION FOR FUNCTIONS AND OTHERS YET
     def read_symbol_table(self, name):
         for symbol in self.symbol_table:
             if name == symbol[0]: #if match the identifier in symbol table
@@ -102,13 +103,16 @@ class Semantic:
             self.symbol_table.append(temp)      
     #-------------------------
 
+#ADD NOOB CONSIDERATION
+
     #-----ARITHMETIC-----
-    #NESTING NOT YET IMPLEMENTED
+    #NESTING NOT YET IMPLEMENTED,
     def sum(self, args):
         #checking for numbar existence 
         #(currently does not go back to convert previous numbrs if numbar is found after a numbr)
         #maybe can look for numbar first before assigning values
         numbar = False
+
         # if args[1][1] in self.arithmetic_categories or args[3][1] in self.arithmetic_categories:
             #do nesting magic
         #else this down below
@@ -212,6 +216,7 @@ class Semantic:
     #--------------------
 
     #-----BOOLEAN-----
+    #NO CONSIDERATION FOR OTHER EXPRESSIONS WITHIN YET
     def and_all(self, args):
         count = 0
         values = []
@@ -450,10 +455,10 @@ I HAS A x ITZ 3
 I HAS A y ITZ 2
 I HAS A z ITZ FAIL
 BUHBYE
-SUM OF 5 AN 7 BTW MEOWMEOW MEOW
-ALL OF x AN y AN z MKAY
-BOTH SAEM x AN BIGGR OF x AN y
-VISIBLE "HELLO WORLD" + "MEOW MEOW"
+SUM OF 5 AN 7 BTW MEOWMEOW MEOW = 12
+ALL OF x AN y AN z MKAY = FALSE (true ^ true ^ false)
+BOTH SAEM x AN BIGGR OF x AN y = TRUE (3 > 2)
+VISIBLE "HELLO WORLD" + "MEOW MEOW" = HELLO WORLDMEOW MEOW
 KTHXBYE
 '''
 SAMPLE_CODE = [
