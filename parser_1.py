@@ -82,6 +82,8 @@ class Parser:
                 tree.children.append(self.parse_arithoperation())
             elif self.tokens[self.index][1] == 'concatenation':
                 tree.children.append(self.parse_smooshoperation())
+            elif self.tokens[self.index][1] == 'typecast':
+                tree.children.append(self.parse_smooshoperation())
         # tree.children.append(self.parse_expr())
         # tree.children.append(self.smooshstaement())
         return tree
@@ -174,6 +176,36 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
 
+        return tree
+    
+    def parse_typecaststatement(self):
+        tree = Node('typecaststatement')      
+
+        # MAEK
+        if self.tokens[self.index][0] == 'MAEK':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error: expects MAEK')
+            
+        # varident
+        tree.children.append(self.tokens[self.index][0])
+        self.index += 1
+        
+        # A
+        if self.tokens[self.index][0] == 'A':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error: expects A')
+        
+        # TROOF | NUMBAR | NUMBR | YARN 
+        if self.tokens[self.index][0] in ['TROOF', 'NUMBAR', 'NUMBR', 'YARN']:
+            tree.children.append(self.tokens[self.index][0])  
+            self.index += 1
+        else:
+            print('error: expects TROOF | NUMBAR | NUMBR | YARN')   
+        
         return tree
         
 
