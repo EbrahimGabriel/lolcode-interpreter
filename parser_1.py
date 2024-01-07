@@ -70,10 +70,16 @@ class Parser:
         # parse smooshstatement
         # ....
 
-        tree = Node('statment')
-        tree.children.append(self.parse_input_statement())
-        tree.children.append(self.parse_print())
-        tree.children.append(self.parse_assignment())
+        tree = Node('statement')
+        while self.tokens[self.index][0] != 'KTHXBYE':
+            if self.tokens[self.index][0] == 'GIMMEH':
+                tree.children.append(self.parse_input_statement())
+            elif self.tokens[self.index][0] == 'VISIBLE':
+                tree.children.append(self.parse_print())
+            elif self.tokens[self.index + 1][0] == 'R':
+                tree.children.append(self.parse_assignment())
+            elif self.tokens[self.index][0] == 'SUM OF' or self.tokens[self.index][0] == 'DIFF OF' or self.tokens[self.index][0] == 'PRODUKT OF' or self.tokens[self.index][0] == 'QUOSHUNT OF' or self.tokens[self.index][0] == 'MOD OF' or self.tokens[self.index][0] == 'BIGGR OF' or self.tokens[self.index][0] == 'SMALLR OF':
+                tree.children.append(self.parse_arithoperation())
         # tree.children.append(self.parse_expr())
         # tree.children.append(self.smooshstaement())
         return tree
@@ -123,9 +129,42 @@ class Parser:
 
         return tree
 
+    def parse_arithoperation(self):
+        tree = Node('arithoperation')
+        if self.tokens[self.index][0] == 'SUM OF' or self.tokens[self.index][0] == 'DIFF OF' or self.tokens[self.index][0] == 'PRODUKT OF' or self.tokens[self.index][0] == 'QUOSHUNT OF' or self.tokens[self.index][0] == 'MOD OF' or self.tokens[self.index][0] == 'BIGGR OF' or self.tokens[self.index][0] == 'SMALLR OF':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        if self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
+            first_type = self.tokens[self.index][1]
+            tree.children.append(self.parse_literal())
+        else:
+            print('error')
+        
+        
+        if self.tokens[self.index][0] == 'AN':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        if self.tokens[self.index][1] == first_type:
+            tree.children.append(self.parse_literal())
+        else:
+            print('error')
+        
+        return tree
+        
+
+        
 
 
-lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], ['x', 'identifier'], ['VISIBLE', 'output'], ['7', 'numbr'], ['y', 'identifier'], ['R', 'assignment'], ['2', 'numbr'], ['KTHXBYE', 'program end']]
+
+lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], ['x', 'identifier'], ['VISIBLE', 'output'], ['7', 'numbr'], 
+            ['y', 'identifier'], ['R', 'assignment'], ['2', 'numbr'], ['SUM OF', 'arithmetic'], ['4', 'numbr'], ['AN', 'opsep'], ['6', 'numbr'], 
+            ['GIMMEH', 'input'], ['x', 'identifier'], ['KTHXBYE', 'program end']]
 p = Parser(lexemes)
 t = p.parse()
 print(t)
