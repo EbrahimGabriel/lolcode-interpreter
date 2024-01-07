@@ -86,6 +86,8 @@ class Parser:
                 tree.children.append(self.parse_booloperation())
             elif self.tokens[self.index][1] == 'typecast':
                 tree.children.append(self.parse_typecaststatement())
+            elif self.tokens[self.index][1] == 'comparison':
+                tree.children.append(self.parse_equality())
         # tree.children.append(self.parse_expr())
         # tree.children.append(self.smooshstaement())
         return tree
@@ -294,16 +296,45 @@ class Parser:
             if self.tokens[self.index][0] == 'AN':
                 tree.children.append(self.tokens[self.index][0])
                 self.index += 1
-        
-        print(tree)
+
         if self.tokens[self.index][0] == 'MKAY':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('errorz')
+            print('error')
 
         return tree
-            
+    
+    def parse_equality(self):
+        tree = Node('equalityoperation')
+        if self.tokens[self.index][0] == 'BOTH SAEM' or self.tokens[self.index][0] == 'DIFFRINT':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        
+        if self.tokens[self.index][1] == 'identifier':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        elif self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
+            self.children.append(self.parse_literal)
+        else:
+            print('error')
+        
+        if self.tokens[self.index][0] == 'AN' or self.tokens[self.index][0] == 'AN BIGGR OF' or self.tokens[self.index][0] == 'AN SMALLR OF':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        if self.tokens[self.index][1] == 'identifier':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        elif self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
+            tree.children.append(self.parse_literal())
+        else:
+            print('error')
+
+        return tree
+
 
 lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], ['x', 'identifier'], ['VISIBLE', 'output'], ['7', 'numbr'], 
             ['y', 'identifier'], ['R', 'assignment'], ['2', 'numbr'], ['SUM OF', 'arithmetic'], ['QUOSHUNT OF', 'arithmetic'], ['4', 'numbr'], ['AN', 'operand separator'], ['6', 'numbr'], 
@@ -316,6 +347,7 @@ lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], [
             ['ALL OF', 'boolean'], ['NOT', 'boolean'], ['x', 'identifier'], ['AN', 'operand separator'], ['BOTH OF', 'boolean'], ['y', 'identifier'],
             ['AN', 'operand separator'], ['z', 'identifier'], ['AN', 'operand separator'], ['EITHER OF', 'boolean'], ['x', 'identifier'],
             ['AN', 'operand separator'], ['y', 'identifier'], ['MKAY', 'end of operands'],
+            ['BOTH SAEM', 'comparison'], ['y', 'identifier'], ['AN BIGGR OF', 'operand separator'], ['3', 'numbar'],
             ['KTHXBYE', 'program end']]
 
 p = Parser(lexemes)
