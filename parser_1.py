@@ -713,7 +713,7 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            rint('error at line 715')
+            print('error at line 715')
         
         # <loopocondition>
         tree.children.append(self.parse_loopcondition())
@@ -723,7 +723,7 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            rint('error at line 725')
+            print('error at line 725')
         
         # <loopstatement>
         tree.children.append(self.parse_flow_statement())
