@@ -82,6 +82,8 @@ class Parser:
                 tree.children.append(self.parse_arithoperation())
             elif self.tokens[self.index][1] == 'concatenation':
                 tree.children.append(self.parse_smooshoperation())
+            elif self.tokens[self.index][1] == 'boolean':
+                tree.children.append(self.parse_booloperation())
         # tree.children.append(self.parse_expr())
         # tree.children.append(self.smooshstaement())
         return tree
@@ -144,10 +146,19 @@ class Parser:
         while (self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof') and self.tokens[self.index + 1][0] == 'AN':
             tree.children.append(self.parse_literal())
             tree.children.append(self.tokens[self.index][0])
-            self.index += 1 
+            self.index += 1
+        
+        while self.tokens[self.index][1] == 'identifier' and self.tokens[self.index + 1][0] == 'AN':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
 
         if self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
             tree.children.append(self.parse_literal())
+        elif self.tokens[self.index][1] == 'identifier':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
         else:
             print('error')
         
@@ -175,6 +186,39 @@ class Parser:
             self.index += 1
 
         return tree
+    
+    def parse_booloperation(self):
+        tree = Node('booloperation')
+        if self.tokens[self.index][0] == 'BOTH OF' or self.tokens[self.index][0] == 'EITHER OF' or self.tokens[self.index][0] == 'WON OF':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+            if self.tokens[self.index][1] == 'identifier':
+                tree.children.append(self.tokens[self.index][0])
+                self.index += 1
+            elif self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
+                tree.children.append(self.parse_literal())
+            else:
+                print('errora')
+            
+            if self.tokens[self.index][0] == 'AN':
+                tree.children.append(self.tokens[self.index][0])
+                self.index += 1
+            else:
+                print('error')
+            
+            if self.tokens[self.index][1] == 'identifier':
+                tree.children.append(self.tokens[self.index][0])
+                self.index += 1
+            elif self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
+                tree.children.append(self.parse_literal())
+            else:
+                print('error')
+        else:
+            print('error')
+
+        return tree
+
+
         
 
 
@@ -184,7 +228,8 @@ lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], [
             ['GIMMEH', 'input'], ['x', 'identifier'], ['SUM OF', 'arithmetic'], ['QUOSHUNT OF', 'arithmetic'], 
             ['PRODUKT OF', 'arithmetic'], ['3', 'numbr'], ['AN', 'operand separator'], ['4', 'numbr'], ['AN', 'operand separator'], ['2', 'numbr'], ['AN', 'operand separator'], ['1', 'numbr'],
             ['SMOOSH', 'concatenation'], ['a', 'identifier'], ['AN', 'operand separator'], ['b', 'identifier'],
-            ['AN', 'operand separator'], ['c', 'identifier'], ['KTHXBYE', 'program end']]
+            ['AN', 'operand separator'], ['c', 'identifier'], ['EITHER OF', 'boolean'], ['x', 'identifier'], ['AN', 'operand separator'], ['3', 'numbr'],
+            ['KTHXBYE', 'program end']]
 
 p = Parser(lexemes)
 t = p.parse()
