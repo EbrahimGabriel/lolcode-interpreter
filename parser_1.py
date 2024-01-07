@@ -76,7 +76,7 @@ class Parser:
                 tree.children.append(self.parse_input_statement())
             elif self.tokens[self.index][1] == 'output':
                 tree.children.append(self.parse_print())
-            elif self.tokens[self.index + 1][0] == 'R':
+            elif self.tokens[self.index + 1][1] == 'assignment' and self.tokens[self.index][0] != 'number':
                 tree.children.append(self.parse_assignment())
             elif self.tokens[self.index][1] == 'arithmetic':
                 tree.children.append(self.parse_arithoperation())
@@ -88,6 +88,8 @@ class Parser:
                 tree.children.append(self.parse_typecaststatement())
             elif self.tokens[self.index][1] == 'comparison':
                 tree.children.append(self.parse_equality())
+            elif self.tokens[self.index+1][1] == 'recast' or (self.tokens[self.index][0] == 'number' and self.tokens[self.index+1][1] == 'assignment'):
+                tree.children.append(self.parse_recaststatement())
         # tree.children.append(self.parse_expr())
         # tree.children.append(self.smooshstaement())
         return tree
@@ -334,6 +336,41 @@ class Parser:
             print('error')
 
         return tree
+    
+    def parse_recaststatement(self):
+        tree = Node('recaststatement')      
+
+        if self.tokens[self.index+1][1] == 'recast':
+            # varident
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+            
+            # IS NOW A
+            if self.tokens[self.index][1] == 'recast':
+                tree.children.append(self.tokens[self.index][0])
+                self.index += 1
+            else:
+                print('error: expects IS NOW A')
+                
+            # TROOF | NUMBAR | NUMBR | YARN 
+            if self.tokens[self.index][0] in ['TROOF', 'NUMBAR', 'NUMBR', 'YARN']:
+                tree.children.append(self.tokens[self.index][0])  
+                self.index += 1
+            else:
+                print('error: expects TROOF | NUMBAR | NUMBR | YARN')
+        elif self.tokens[self.index][0] == 'number' and self.tokens[self.index+1][1] == 'assignment':
+            
+            # number R
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+            
+            # <typecast>
+            tree.children.append(self.parse_typecaststatement())
+            
+        
+        return tree
 
 
 lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], ['x', 'identifier'], ['VISIBLE', 'output'], ['7', 'numbr'], 
@@ -348,6 +385,8 @@ lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], [
             ['AN', 'operand separator'], ['z', 'identifier'], ['AN', 'operand separator'], ['EITHER OF', 'boolean'], ['x', 'identifier'],
             ['AN', 'operand separator'], ['y', 'identifier'], ['MKAY', 'end of operands'],
             ['BOTH SAEM', 'comparison'], ['y', 'identifier'], ['AN BIGGR OF', 'operand separator'], ['3', 'numbar'],
+            ['xxx', 'identifier'], ['IS NOW A', 'recast'], ['TROOF', 'datatype'],
+            ['number', 'idk'], ['R', 'assignment'],['MAEK', 'typecast'], ['varident', 'identifier'], ['A', 'opsep'], ['TROOF', 'datatype'],
             ['KTHXBYE', 'program end']]
 
 p = Parser(lexemes)
