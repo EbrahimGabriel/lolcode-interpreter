@@ -218,8 +218,18 @@ class Parser:
             print('error: expects TROOF | NUMBAR | NUMBR | YARN')   
         
         return tree
-    
+
     def parse_booloperation(self):
+        tree = Node('booloperation')
+        if self.tokens[self.index][0] == 'BOTH OF' or self.tokens[self.index][0] == 'EITHER OF' or self.tokens[self.index][0] == 'WON OF':
+            tree = self.parse_binary()
+        elif self.tokens[self.index][0] == 'NOT':
+            tree = self.parse_unary()
+        elif self.tokens[self.index][0] == 'ALL OF' or self.tokens[self.index][0] == 'ANY OF':
+            tree = self.parse_infarity()
+        return tree
+
+    def parse_binary(self):
         tree = Node('booloperation')
         if self.tokens[self.index][0] == 'BOTH OF' or self.tokens[self.index][0] == 'EITHER OF' or self.tokens[self.index][0] == 'WON OF':
             tree.children.append(self.tokens[self.index][0])
@@ -247,7 +257,11 @@ class Parser:
                 print('error')
         else:
             print('error')
+        
+        return tree
 
+    def parse_unary(self):
+        tree = Node('booloperation')
         if self.tokens[self.index][0] == 'NOT':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
@@ -262,7 +276,34 @@ class Parser:
             print('error')
 
         return tree
+
+    def parse_infarity(self):
+        tree = Node('booloperation')
+        if self.tokens[self.index][0] == 'ALL OF' or self.tokens[self.index][0] == 'ANY OF':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        while self.tokens[self.index][0] == 'NOT' or self.tokens[self.index][0] == 'BOTH OF' or self.tokens[self.index][0] == 'EITHER OF' or self.tokens[self.index][0] == 'WON OF':
+            if self.tokens[self.index][0] == 'NOT':
+                tree.children.append(self.parse_unary())
+            else:
+                tree.children.append(self.parse_binary())
+
+            if self.tokens[self.index][0] == 'AN':
+                tree.children.append(self.tokens[self.index][0])
+                self.index += 1
         
+        print(tree)
+        if self.tokens[self.index][0] == 'MKAY':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('errorz')
+
+        return tree
+            
 
 lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], ['x', 'identifier'], ['VISIBLE', 'output'], ['7', 'numbr'], 
             ['y', 'identifier'], ['R', 'assignment'], ['2', 'numbr'], ['SUM OF', 'arithmetic'], ['QUOSHUNT OF', 'arithmetic'], ['4', 'numbr'], ['AN', 'operand separator'], ['6', 'numbr'], 
@@ -271,6 +312,10 @@ lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], [
             ['SMOOSH', 'concatenation'], ['a', 'identifier'], ['AN', 'operand separator'], ['b', 'identifier'],
             ['AN', 'operand separator'], ['c', 'identifier'], ['EITHER OF', 'boolean'], ['x', 'identifier'], ['AN', 'operand separator'], ['3', 'numbr'],
             ['MAEK', 'typecast'], ['varident', 'identifier'], ['A', 'opsep'], ['TROOF', 'datatype'], 
+            ['NOT', 'boolean'], ['3', 'numbr'],
+            ['ALL OF', 'boolean'], ['NOT', 'boolean'], ['x', 'identifier'], ['AN', 'operand separator'], ['BOTH OF', 'boolean'], ['y', 'identifier'],
+            ['AN', 'operand separator'], ['z', 'identifier'], ['AN', 'operand separator'], ['EITHER OF', 'boolean'], ['x', 'identifier'],
+            ['AN', 'operand separator'], ['y', 'identifier'], ['MKAY', 'end of operands'],
             ['KTHXBYE', 'program end']]
 
 p = Parser(lexemes)
