@@ -542,6 +542,18 @@ class Parser:
             else:
                 print('error')
         
+        if self.tokens[self.index][0] == 'OMGWTF':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        if self.tokens[self.index][0] == '\n':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
         tree.children.append(self.parse_flow_statement())
 
         if self.tokens[self.index][0] == '\n':
@@ -587,7 +599,7 @@ lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], [
             ['number', 'idk'], ['R', 'assignment'],['MAEK', 'typecast'], ['varident', 'identifier'], ['A', 'opsep'], ['TROOF', 'datatype'],
             ['WTF?', 'switchstart'], ['\n', 'linebreak'], ['OMG', 'switchcase'], ['3', 'numbr'], ['\n', 'linebreak'], ['GIMME', 'input'], ['3', 'numbr'], ['\n', 'linebreak'],
             ['OMG', 'switchcase'], ['10', 'numbr'], ['\n', 'linebreak'], ['SMOOSH', 'concatenation'], ['a', 'identifier'], ['AN', 'operand separator'], ['b', 'identifier'], ['\n', 'linebreak'],
-            ['SUM OF', 'arithmetic'], ['2', 'numbr'], ['AN', 'operand separator'], ['1', 'numbr'], ['\n', 'linebreak'],
+            ['OMGWTF', 'switchdef'], ['\n', 'linebreak'], ['SUM OF', 'arithmetic'], ['2', 'numbr'], ['AN', 'operand separator'], ['1', 'numbr'], ['\n', 'linebreak'],
             ['OIC', 'flowend'], ['\n', 'linebreak'],
             ['KTHXBYE', 'program end']]
 
