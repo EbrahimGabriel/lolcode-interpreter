@@ -32,16 +32,14 @@ class Parser:
     def parse_program(self):
         root = Node('program')
 
-
         if self.tokens[self.index][0] != 'HAI':
-           print('error')
+           print('error at line 35')
         
         root.children.append(self.tokens[self.index][0])
         self.index += 1
 
-
         if self.tokens[self.index][0] != '\n':
-           print('error')
+           print('error at line 41')
         root.children.append(self.tokens[self.index][0])   
         self.index += 1
 
@@ -56,7 +54,7 @@ class Parser:
         # self.index += 1    
 
         if self.tokens[self.index][0] != 'KTHXBYE':
-           print('error')
+           print('error at line 56')
         root.children.append(self.tokens[self.index][0])
         self.index += 1
 
@@ -105,7 +103,7 @@ class Parser:
     def parse_input_statement(self):
         tree = Node('inputstatement')
         if self.tokens[self.index][0] != 'GIMMEH':
-            print('error')
+            print('error at line 105')
         tree.children.append(self.tokens[self.index][0])
         self.index += 1
 
@@ -117,7 +115,7 @@ class Parser:
     def parse_print(self):
         tree = Node('printstatement')
         if self.tokens[self.index][0] != 'VISIBLE':
-            print('error')
+            print('error at line 117')
         tree.children.append(self.tokens[self.index][0])
         self.index += 1
         tree.children.append(self.parse_literal())
@@ -129,7 +127,7 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 129')
         return tree
 
     def parse_assignment(self):
@@ -138,7 +136,7 @@ class Parser:
         self.index += 1
         
         if self.tokens[self.index][0] != 'R':
-            print('error')
+            print('error at line 138')
         tree.children.append(self.tokens[self.index][0])
         self.index += 1
 
@@ -150,7 +148,7 @@ class Parser:
         tree = Node('arithoperation')
 
         if self.tokens[self.index][0] != 'SUM OF' and self.tokens[self.index][0] != 'DIFF OF' and self.tokens[self.index][0] != 'PRODUKT OF' and self.tokens[self.index][0] != 'QUOSHUNT OF' and self.tokens[self.index][0] != 'MOD OF' and self.tokens[self.index][0] != 'BIGGR OF' and self.tokens[self.index][0] != 'SMALLR OF':
-            print('error')
+            print('error at line 150')
 
         while self.tokens[self.index][0] == 'SUM OF' or self.tokens[self.index][0] == 'DIFF OF' or self.tokens[self.index][0] == 'PRODUKT OF' or self.tokens[self.index][0] == 'QUOSHUNT OF' or self.tokens[self.index][0] == 'MOD OF' or self.tokens[self.index][0] == 'BIGGR OF' or self.tokens[self.index][0] == 'SMALLR OF':
             tree.children.append(self.tokens[self.index][0])
@@ -173,7 +171,7 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 173')
         
         return tree
     
@@ -183,10 +181,10 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 183')
         
         if self.tokens[self.index][1] != 'identifier' or self.tokens[self.index + 1][0] != 'AN':
-            print('error')
+            print('error at line 186')
 
         while self.tokens[self.index][1] == 'identifier' and self.tokens[self.index + 1][0] == 'AN':
             tree.children.append(self.tokens[self.index][0])
@@ -208,25 +206,28 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error: expects MAEK')
+            print('error at line 208')
             
         # varident
-        tree.children.append(self.tokens[self.index][0])
-        self.index += 1
+        if self.tokens[self.index][1] == 'identifier':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error at line 215')
         
         # A
         if self.tokens[self.index][0] == 'A':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error: expects A')
+            print('error at line 222')
         
         # TROOF | NUMBAR | NUMBR | YARN 
         if self.tokens[self.index][0] in ['TROOF', 'NUMBAR', 'NUMBR', 'YARN']:
             tree.children.append(self.tokens[self.index][0])  
             self.index += 1
         else:
-            print('error: expects TROOF | NUMBAR | NUMBR | YARN')   
+            print('error at line 229')  
         
         return tree
 
@@ -251,13 +252,13 @@ class Parser:
             elif self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
                 tree.children.append(self.parse_literal())
             else:
-                print('error')
+                print('error at line 254')
             
             if self.tokens[self.index][0] == 'AN':
                 tree.children.append(self.tokens[self.index][0])
                 self.index += 1
             else:
-                print('error')
+                print('error at line 260')
             
             if self.tokens[self.index][1] == 'identifier':
                 tree.children.append(self.tokens[self.index][0])
@@ -265,9 +266,9 @@ class Parser:
             elif self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
                 tree.children.append(self.parse_literal())
             else:
-                print('error')
+                print('error at line 269')
         else:
-            print('error')
+            print('error at line 270')
         
         return tree
 
@@ -282,9 +283,9 @@ class Parser:
             elif self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
                 tree.children.append(self.parse_literal())
             else:
-                print('error')
+                print('error at line 285')
         else:
-            print('error')
+            print('error at line 287')
 
         return tree
 
@@ -294,7 +295,7 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 297')
 
         while self.tokens[self.index][0] == 'NOT' or self.tokens[self.index][0] == 'BOTH OF' or self.tokens[self.index][0] == 'EITHER OF' or self.tokens[self.index][0] == 'WON OF':
             if self.tokens[self.index][0] == 'NOT':
@@ -310,7 +311,7 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 313')
 
         return tree
     
@@ -326,13 +327,13 @@ class Parser:
         elif self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
             self.children.append(self.parse_literal)
         else:
-            print('error')
+            print('error at line 329')
         
         if self.tokens[self.index][0] == 'AN' or self.tokens[self.index][0] == 'AN BIGGR OF' or self.tokens[self.index][0] == 'AN SMALLR OF':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 335')
 
         if self.tokens[self.index][1] == 'identifier':
             tree.children.append(self.tokens[self.index][0])
@@ -340,7 +341,7 @@ class Parser:
         elif self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
             tree.children.append(self.parse_literal())
         else:
-            print('error')
+            print('error at line 343')
 
         return tree
     
@@ -349,22 +350,25 @@ class Parser:
 
         if self.tokens[self.index+1][1] == 'recast':
             # varident
-            tree.children.append(self.tokens[self.index][0])
-            self.index += 1
+            if self.tokens[self.index][1] == 'identifier':
+                tree.children.append(self.tokens[self.index][0])
+                self.index += 1
+            else:
+                print('error at line 356')
             
             # IS NOW A
             if self.tokens[self.index][1] == 'recast':
                 tree.children.append(self.tokens[self.index][0])
                 self.index += 1
             else:
-                print('error: expects IS NOW A')
+                print('error at line 363')
                 
             # TROOF | NUMBAR | NUMBR | YARN 
             if self.tokens[self.index][0] in ['TROOF', 'NUMBAR', 'NUMBR', 'YARN']:
                 tree.children.append(self.tokens[self.index][0])  
                 self.index += 1
             else:
-                print('error: expects TROOF | NUMBAR | NUMBR | YARN')
+                print('error at line 370')
         elif self.tokens[self.index][0] == 'number' and self.tokens[self.index+1][1] == 'assignment':
             
             # number R
@@ -376,7 +380,6 @@ class Parser:
             # <typecast>
             tree.children.append(self.parse_typecaststatement())
             
-        
         return tree
 
     def parse_flow_statement(self):
@@ -426,25 +429,25 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 431')
 
         if self.tokens[self.index][0] == '\n':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 437')
 
         if self.tokens[self.index][0] == 'YA RLY':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 443')
         
         if self.tokens[self.index][0] == '\n':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 449')
 
         tree.children.append(self.parse_flow_statement())
 
@@ -452,7 +455,7 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 457')
 
 
         while self.tokens[self.index][0] == 'MEBBE':
@@ -462,7 +465,7 @@ class Parser:
                 tree.children.append(self.tokens[self.index][0])
                 self.index += 1
             else:
-                print('error')
+                print('error at line 467')
 
             tree.children.append(self.parse_flow_statement())
             
@@ -470,25 +473,25 @@ class Parser:
                 tree.children.append(self.tokens[self.index][0])
                 self.index += 1
             else:
-                print('error')
+                print('error at line 475')
         
         if self.tokens[self.index][0] == '\n':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 481')
         
         if self.tokens[self.index][0] == 'NO WAI':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 487')
         
         if self.tokens[self.index][0] == '\n':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 494')
 
         tree.children.append(self.parse_flow_statement())
 
@@ -496,19 +499,19 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 501')
 
         if self.tokens[self.index][0] == 'OIC':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 507')
 
         if self.tokens[self.index][0] == '\n':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 513')
 
         return tree
 
@@ -518,13 +521,13 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 523')
 
         if self.tokens[self.index][0] == '\n':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 529')
 
         while self.tokens[self.index][0] == 'OMG':
             tree.children.append(self.tokens[self.index][0])
@@ -533,13 +536,13 @@ class Parser:
             if self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
                 tree.children.append(self.parse_literal())
             else:
-                print('error')
+                print('error at line 539')
 
             if self.tokens[self.index][0] == '\n':
                 tree.children.append(self.tokens[self.index][0])
                 self.index += 1
             else:
-                print('error')
+                print('error at line 544')
 
             tree.children.append(self.parse_flow_statement())
 
@@ -547,19 +550,19 @@ class Parser:
                 tree.children.append(self.tokens[self.index][0])
                 self.index += 1
             else:
-                print('error')
+                print('error at line 552')
         
         if self.tokens[self.index][0] == 'OMGWTF':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 558')
 
         if self.tokens[self.index][0] == '\n':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 564')
 
         tree.children.append(self.parse_flow_statement())
 
@@ -567,20 +570,19 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 572')
 
         if self.tokens[self.index][0] == 'OIC':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 578')
 
         if self.tokens[self.index][0] == '\n':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
-
+            print('error at line 584')
 
         return tree
 
@@ -593,9 +595,8 @@ class Parser:
         elif self.tokens[self.index][1] == 'comparison':
             tree.children.append(self.parse_equality())
         else:
-            print('error')
+            print('error at line 597')
         return tree
-
 
     def parse_function(self):
         tree = Node('function')
@@ -603,14 +604,14 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 606')
 
 
         if self.tokens[self.index][1] == 'identifier':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 613')
 
 
         while self.tokens[self.index][0] == 'YR':
@@ -618,13 +619,13 @@ class Parser:
                 tree.children.append(self.tokens[self.index][0])
                 self.index += 1
             else:
-                print('error')
+                print('error at line 621')
             
             if self.tokens[self.index][1] == 'identifier':
                 tree.children.append(self.tokens[self.index][0])
                 self.index += 1
             else:
-                print('error')
+                print('error at line 627')
 
             if self.tokens[self.index][0] != 'AN':
                 break
@@ -640,7 +641,7 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 643')
 
         tree.children.append(self.parse_flow_statement())
 
@@ -648,7 +649,7 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 651')
 
         if self.tokens[self.index][0] == 'GTFO':
             tree.children.append(self.tokens[self.index][0])
@@ -658,25 +659,25 @@ class Parser:
             self.index += 1
             tree.children.append(self.parse_expression())
         else:
-            print('error')
+            print('error at line 661')
 
         if self.tokens[self.index][0] == '\n':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 667')
 
         if self.tokens[self.index][0] == 'IF U SAY SO':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 673')
 
         if self.tokens[self.index][0] == '\n':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error')
+            print('error at line 679')
         
         return tree
     
@@ -688,14 +689,14 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else: 
-            print('error: expected IM IN YR')
+            print('error at line 691')
         
         # loopident
         if self.tokens[self.index][1] == 'identifier':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else: 
-            print('error: expected loopident')
+            print('error at line 698')
         
         # <loopoperation>
         tree.children.append(self.parse_loopoperation())
@@ -705,14 +706,14 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error: expected YR')
+            print('error at line 708')
         
         # varident
         if self.tokens[self.index][1] == 'identifier':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error: expected varident')
+            rint('error at line 715')
         
         # <loopocondition>
         tree.children.append(self.parse_loopcondition())
@@ -722,7 +723,7 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error: expected \\n')
+            rint('error at line 725')
         
         # <loopstatement>
         tree.children.append(self.parse_flow_statement())
@@ -733,20 +734,20 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error: expected \\n')
+            print('error at line 736')
                 
         if self.tokens[self.index][1] == 'loopend':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error: expected IM OUTTA YR')
+            print('error at line 742')
             
         # loopident
         if self.tokens[self.index][1] == 'identifier':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else: 
-            print('error: expected loopident')
+            print('error at line 749')
         
         return tree
         
@@ -759,7 +760,7 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error: expected UPPIN or NERFIN')
+            print('error at line 762')
         return tree
         
         
@@ -771,7 +772,7 @@ class Parser:
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
         else:
-            print('error: expected TIL or WILE')
+            print('error at line 774')
             
         # <boolstatement>
         tree.children.append(self.parse_booloperation())
