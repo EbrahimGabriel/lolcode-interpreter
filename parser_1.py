@@ -96,6 +96,8 @@ class Parser:
                 tree.children.append(self.parse_switchstatement())
             elif self.tokens[self.index][1] == 'function start':
                 tree.children.append(self.parse_function())
+            elif self.tokens[self.index][1] == 'loopstart':
+                tree.children.append(self.parse_loopstatement())
         # tree.children.append(self.parse_expr())
         # tree.children.append(self.smooshstaement())
         return tree
@@ -677,6 +679,104 @@ class Parser:
             print('error')
         
         return tree
+    
+    # <loop> ::= IM IN YR loopident <loopoperation> YR varident <loopcondition> <linebreak> <loopstatement> <linebreak> IM OUTTA YR loopident
+    def parse_loopstatement(self):
+        tree = Node('loop')
+
+        if self.tokens[self.index][1] == 'loopstart':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else: 
+            print('error: expected IM IN YR')
+        
+        # loopident
+        if self.tokens[self.index][1] == 'identifier':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else: 
+            print('error: expected loopident')
+        
+        # <loopoperation>
+        tree.children.append(self.parse_loopoperation())
+        
+        # YR
+        if self.tokens[self.index][1] == 'params':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error: expected YR')
+        
+        # varident
+        if self.tokens[self.index][1] == 'identifier':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error: expected varident')
+        
+        # <loopocondition>
+        tree.children.append(self.parse_loopcondition())
+        
+        # \n
+        if self.tokens[self.index][1] == 'linebreak':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error: expected \\n')
+        
+        # <loopstatement>
+        tree.children.append(self.parse_flow_statement())
+        # self.index += 1
+        
+        # \n
+        if self.tokens[self.index][1] == 'linebreak':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error: expected \\n')
+                
+        if self.tokens[self.index][1] == 'loopend':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error: expected IM OUTTA YR')
+            
+        # loopident
+        if self.tokens[self.index][1] == 'identifier':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else: 
+            print('error: expected loopident')
+        
+        return tree
+        
+        
+    # <loopcondition> ::= UPPIN | NERFIN
+    def parse_loopoperation(self):
+        tree = Node('loopoperation')
+        
+        if self.tokens[self.index][1] == 'increment' or self.tokens[self.index][1] == 'decrement':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error: expected UPPIN or NERFIN')
+        return tree
+        
+        
+    # <loopcondition> ::= loopcondition TIL <boolstatement> | WILE <boolstatement>
+    def parse_loopcondition(self):
+        tree = Node('loopcondition')
+        
+        if self.tokens[self.index][1] == 'loop condition':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error: expected TIL or WILE')
+            
+        # <boolstatement>
+        tree.children.append(self.parse_booloperation())
+
+        return tree
 
         
 
@@ -707,6 +807,14 @@ lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], [
             ['HOW IZ I', 'function start'], ['hello', 'identifier'], ['YR', 'parameter'], ['x', 'identifier'], ['AN', 'operand separator'], ['YR', 'parameter'], ['y', 'identifier'], ['\n', 'linebreak'],
             ['SUM OF', 'arithmetic'], ['2', 'numbr'], ['AN', 'operand separator'], ['1', 'numbr'], ['\n', 'linebreak'],
             ['GTFO', 'break'], ['\n', 'linebreak'],
+            ['IM IN YR', 'loopstart'], 
+            ['loopident', 'identifier'], 
+            ['UPPIN', 'increment'], 
+            ['YR', 'params'], ['varident', 'identifier'], 
+            ['TIL', 'loop condition'], ['NOT', 'boolean'], ['3', 'numbr'],
+            ['\n', 'linebreak'], 
+            ['GIMMEH', 'input'], ['x', 'identifier'],
+            ['\n', 'linebreak'], ['IM OUTTA YR', 'loopend'], ['loopident', 'identifier'], 
             ['KTHXBYE', 'program end']]
 
 p = Parser(lexemes)
