@@ -200,7 +200,7 @@ class Parser:
             elif self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
                 tree.children.append(self.parse_literal())
             else:
-                print('errora')
+                print('error')
             
             if self.tokens[self.index][0] == 'AN':
                 tree.children.append(self.tokens[self.index][0])
@@ -218,9 +218,22 @@ class Parser:
         else:
             print('error')
 
+        if self.tokens[self.index][0] == 'NOT':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+            if self.tokens[self.index][1] == 'identifier':
+                tree.children.append(self.tokens[self.index][0])
+                self.index += 1
+            elif self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
+                tree.children.append(self.parse_literal())
+            else:
+                print('error')
+        else:
+            print('error')
+
         return tree
 
-
+    def parse_not(self)
         
 
 lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], ['x', 'identifier'], ['VISIBLE', 'output'], ['7', 'numbr'], 
@@ -229,7 +242,7 @@ lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], [
             ['PRODUKT OF', 'arithmetic'], ['3', 'numbr'], ['AN', 'operand separator'], ['4', 'numbr'], ['AN', 'operand separator'], ['2', 'numbr'], ['AN', 'operand separator'], ['1', 'numbr'],
             ['SMOOSH', 'concatenation'], ['a', 'identifier'], ['AN', 'operand separator'], ['b', 'identifier'],
             ['AN', 'operand separator'], ['c', 'identifier'], ['EITHER OF', 'boolean'], ['x', 'identifier'], ['AN', 'operand separator'], ['3', 'numbr'],
-            ['AN', 'operand separator'], ['c', 'identifier'], ['MAEK', 'typecast'], ['varident', 'identifier'], ['A', 'opsep'], ['TROOF', 'datatype'], ['KTHXBYE', 'program end']]
+            ['KTHXBYE', 'program end']]
 
 p = Parser(lexemes)
 t = p.parse()
