@@ -131,11 +131,13 @@ class Parser:
 
     def parse_arithoperation(self):
         tree = Node('arithoperation')
-        if self.tokens[self.index][0] == 'SUM OF' or self.tokens[self.index][0] == 'DIFF OF' or self.tokens[self.index][0] == 'PRODUKT OF' or self.tokens[self.index][0] == 'QUOSHUNT OF' or self.tokens[self.index][0] == 'MOD OF' or self.tokens[self.index][0] == 'BIGGR OF' or self.tokens[self.index][0] == 'SMALLR OF':
+        first_type = ''
+        if  self.tokens[self.index][0] == 'SUM OF' or self.tokens[self.index][0] == 'DIFF OF' or self.tokens[self.index][0] == 'PRODUKT OF' or self.tokens[self.index][0] == 'QUOSHUNT OF' or self.tokens[self.index][0] == 'MOD OF' or self.tokens[self.index][0] == 'BIGGR OF' or self.tokens[self.index][0] == 'SMALLR OF':
+            print('error')
+
+        while self.tokens[self.index][0] == 'SUM OF' or self.tokens[self.index][0] == 'DIFF OF' or self.tokens[self.index][0] == 'PRODUKT OF' or self.tokens[self.index][0] == 'QUOSHUNT OF' or self.tokens[self.index][0] == 'MOD OF' or self.tokens[self.index][0] == 'BIGGR OF' or self.tokens[self.index][0] == 'SMALLR OF':
             tree.children.append(self.tokens[self.index][0])
             self.index += 1
-        else:
-            print('error')
 
         if self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
             first_type = self.tokens[self.index][1]
@@ -156,6 +158,7 @@ class Parser:
             print('error')
         
         return tree
+    
         
 
         
@@ -163,7 +166,7 @@ class Parser:
 
 
 lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], ['x', 'identifier'], ['VISIBLE', 'output'], ['7', 'numbr'], 
-            ['y', 'identifier'], ['R', 'assignment'], ['2', 'numbr'], ['SUM OF', 'arithmetic'], ['4', 'numbr'], ['AN', 'opsep'], ['6', 'numbr'], 
+            ['y', 'identifier'], ['R', 'assignment'], ['2', 'numbr'], ['SUM OF', 'arithmetic'], ['QUOSHUNT OF', 'arithmetic'], ['4', 'numbr'], ['AN', 'opsep'], ['6', 'numbr'], 
             ['GIMMEH', 'input'], ['x', 'identifier'], ['KTHXBYE', 'program end']]
 p = Parser(lexemes)
 t = p.parse()
