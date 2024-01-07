@@ -82,8 +82,13 @@ class Parser:
                 tree.children.append(self.parse_arithoperation())
             elif self.tokens[self.index][1] == 'concatenation':
                 tree.children.append(self.parse_smooshoperation())
+<<<<<<< HEAD
             elif self.tokens[self.index][1] == 'boolean':
                 tree.children.append(self.parse_booloperation())
+=======
+            elif self.tokens[self.index][1] == 'typecast':
+                tree.children.append(self.parse_typecaststatement())
+>>>>>>> origin/main
         # tree.children.append(self.parse_expr())
         # tree.children.append(self.smooshstaement())
         return tree
@@ -221,15 +226,13 @@ class Parser:
 
         
 
-
-
 lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], ['x', 'identifier'], ['VISIBLE', 'output'], ['7', 'numbr'], 
             ['y', 'identifier'], ['R', 'assignment'], ['2', 'numbr'], ['SUM OF', 'arithmetic'], ['QUOSHUNT OF', 'arithmetic'], ['4', 'numbr'], ['AN', 'operand separator'], ['6', 'numbr'], 
             ['GIMMEH', 'input'], ['x', 'identifier'], ['SUM OF', 'arithmetic'], ['QUOSHUNT OF', 'arithmetic'], 
             ['PRODUKT OF', 'arithmetic'], ['3', 'numbr'], ['AN', 'operand separator'], ['4', 'numbr'], ['AN', 'operand separator'], ['2', 'numbr'], ['AN', 'operand separator'], ['1', 'numbr'],
             ['SMOOSH', 'concatenation'], ['a', 'identifier'], ['AN', 'operand separator'], ['b', 'identifier'],
             ['AN', 'operand separator'], ['c', 'identifier'], ['EITHER OF', 'boolean'], ['x', 'identifier'], ['AN', 'operand separator'], ['3', 'numbr'],
-            ['KTHXBYE', 'program end']]
+            ['AN', 'operand separator'], ['c', 'identifier'], ['MAEK', 'typecast'], ['varident', 'identifier'], ['A', 'opsep'], ['TROOF', 'datatype'], ['KTHXBYE', 'program end']]
 
 p = Parser(lexemes)
 t = p.parse()
