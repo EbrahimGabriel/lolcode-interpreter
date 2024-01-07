@@ -88,10 +88,11 @@ class Parser:
                 tree.children.append(self.parse_typecaststatement())
             elif self.tokens[self.index][1] == 'comparison':
                 tree.children.append(self.parse_equality())
+            elif self.tokens[self.index][1] == 'ifstart':
+                tree.children.append(self.parse_ifstatement())
         # tree.children.append(self.parse_expr())
         # tree.children.append(self.smooshstaement())
         return tree
-
 
     def parse_input_statement(self):
         tree = Node('inputstatement')
@@ -335,6 +336,133 @@ class Parser:
 
         return tree
 
+    def parse_flow_statement(self):
+        tree = Node('flowstatement')
+        while True:
+            if self.tokens[self.index][1] == 'input':
+                tree.children.append(self.parse_input_statement())
+                return tree
+            elif self.tokens[self.index][1] == 'output':
+                tree.children.append(self.parse_print())
+                return tree
+            elif self.tokens[self.index + 1][0] == 'R':
+                tree.children.append(self.parse_assignment())
+                return tree
+            elif self.tokens[self.index][1] == 'arithmetic':
+                tree.children.append(self.parse_arithoperation())
+                return tree
+            elif self.tokens[self.index][1] == 'concatenation':
+                tree.children.append(self.parse_smooshoperation())
+                return tree
+            elif self.tokens[self.index][1] == 'boolean':
+                tree.children.append(self.parse_booloperation())
+                return tree
+            elif self.tokens[self.index][1] == 'typecast':
+                tree.children.append(self.parse_typecaststatement())
+                return tree
+            elif self.tokens[self.index][1] == 'comparison':
+                tree.children.append(self.parse_equality())
+                return tree
+            elif self.tokens[self.index][1] == 'ifstart':
+                tree.children.append(self.parse_ifstatement())
+                return tree
+            elif self.tokens[self.index][1] == 'linebreak':
+                tree.children.append(self.tokens[self.index][0])
+                self.index += 1
+                return tree
+
+    def parse_ifstatement(self):
+        tree = Node('ifstatement')
+        if self.tokens[self.index][0] == 'O RLY?':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        if self.tokens[self.index][0] == '\n':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        if self.tokens[self.index][0] == 'YA RLY':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+        
+        if self.tokens[self.index][0] == '\n':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        tree.children.append(self.parse_flow_statement())
+
+        if self.tokens[self.index][0] == '\n':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+
+        while self.tokens[self.index][0] == 'MEBBE':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+            if self.tokens[self.index][0] == '\n':
+                tree.children.append(self.tokens[self.index][0])
+                self.index += 1
+            else:
+                print('error')
+
+            tree.children.append(self.parse_flow_statement())
+            
+            if self.tokens[self.index][0] == '\n':
+                tree.children.append(self.tokens[self.index][0])
+                self.index += 1
+            else:
+                print('error')
+        
+        if self.tokens[self.index][0] == '\n':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+        
+        if self.tokens[self.index][0] == 'NO WAI':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+        
+        if self.tokens[self.index][0] == '\n':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        tree.children.append(self.parse_flow_statement())
+
+        if self.tokens[self.index][0] == '\n':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        if self.tokens[self.index][0] == 'OIC':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        if self.tokens[self.index][0] == '\n':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        return tree
+
 
 lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], ['x', 'identifier'], ['VISIBLE', 'output'], ['7', 'numbr'], 
             ['y', 'identifier'], ['R', 'assignment'], ['2', 'numbr'], ['SUM OF', 'arithmetic'], ['QUOSHUNT OF', 'arithmetic'], ['4', 'numbr'], ['AN', 'operand separator'], ['6', 'numbr'], 
@@ -348,6 +476,11 @@ lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], [
             ['AN', 'operand separator'], ['z', 'identifier'], ['AN', 'operand separator'], ['EITHER OF', 'boolean'], ['x', 'identifier'],
             ['AN', 'operand separator'], ['y', 'identifier'], ['MKAY', 'end of operands'],
             ['BOTH SAEM', 'comparison'], ['y', 'identifier'], ['AN BIGGR OF', 'operand separator'], ['3', 'numbar'],
+            ['O RLY?', 'ifstart'], ['\n', 'linebreak'], ['YA RLY', 'ifif'], ['\n', 'linebreak'], ['SUM OF', 'arithmetic'], ['x', 'identifier'], ['AN', 'operand separator'], ['3', 'numbr'], ['\n', 'linebreak'],
+            ['MEBBE', 'elseif'], ['\n', 'linebreak'], ['SMOOSH', 'concatenation'], ['x', 'identifier'], ['AN', 'operand separator'], ['b', 'identifier'], ['\n', 'linebreak'],
+            ['MEBBE', 'elseif'], ['\n', 'linebreak'], ['GIMMEH', 'input'], ['x', 'identifier'], ['\n', 'linebreak'],
+            ['NO WAI', 'elsekey'], ['\n', 'linebreak'], ['VISIBLE', 'output'], ['7', 'numbr'], ['\n', 'linebreak'],
+            ['OIC', 'flowend'], ['\n', 'linebreak'],
             ['KTHXBYE', 'program end']]
 
 p = Parser(lexemes)
