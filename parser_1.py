@@ -83,7 +83,7 @@ class Parser:
             elif self.tokens[self.index][1] == 'concatenation':
                 tree.children.append(self.parse_smooshoperation())
             elif self.tokens[self.index][1] == 'typecast':
-                tree.children.append(self.parse_smooshoperation())
+                tree.children.append(self.parse_typecaststatement())
         # tree.children.append(self.parse_expr())
         # tree.children.append(self.smooshstaement())
         return tree
@@ -216,7 +216,7 @@ lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], [
             ['GIMMEH', 'input'], ['x', 'identifier'], ['SUM OF', 'arithmetic'], ['QUOSHUNT OF', 'arithmetic'], 
             ['PRODUKT OF', 'arithmetic'], ['3', 'numbr'], ['AN', 'operand separator'], ['4', 'numbr'], ['AN', 'operand separator'], ['2', 'numbr'], ['AN', 'operand separator'], ['1', 'numbr'],
             ['SMOOSH', 'concatenation'], ['a', 'identifier'], ['AN', 'operand separator'], ['b', 'identifier'],
-            ['AN', 'operand separator'], ['c', 'identifier'], ['KTHXBYE', 'program end']]
+            ['AN', 'operand separator'], ['c', 'identifier'], ['MAEK', 'typecast'], ['varident', 'identifier'], ['A', 'opsep'], ['TROOF', 'datatype'], ['KTHXBYE', 'program end']]
 
 p = Parser(lexemes)
 t = p.parse()
