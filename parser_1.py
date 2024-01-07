@@ -82,13 +82,10 @@ class Parser:
                 tree.children.append(self.parse_arithoperation())
             elif self.tokens[self.index][1] == 'concatenation':
                 tree.children.append(self.parse_smooshoperation())
-<<<<<<< HEAD
             elif self.tokens[self.index][1] == 'boolean':
                 tree.children.append(self.parse_booloperation())
-=======
             elif self.tokens[self.index][1] == 'typecast':
                 tree.children.append(self.parse_typecaststatement())
->>>>>>> origin/main
         # tree.children.append(self.parse_expr())
         # tree.children.append(self.smooshstaement())
         return tree
