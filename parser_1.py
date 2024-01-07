@@ -92,6 +92,8 @@ class Parser:
                 tree.children.append(self.parse_ifstatement())
             elif self.tokens[self.index+1][1] == 'recast' or (self.tokens[self.index][0] == 'number' and self.tokens[self.index+1][1] == 'assignment'):
                 tree.children.append(self.parse_recaststatement())
+            elif self.tokens[self.index][1] == 'switchstart':
+                tree.children.append(self.parse_switchstatement())
         # tree.children.append(self.parse_expr())
         # tree.children.append(self.smooshstaement())
         return tree
@@ -403,6 +405,9 @@ class Parser:
             elif self.tokens[self.index][1] == 'ifstart':
                 tree.children.append(self.parse_ifstatement())
                 return tree
+            elif self.tokens[self.index][1] == 'switchstart':
+                tree.children.append(self.parse_switchstatement())
+                return tree
             elif self.tokens[self.index][1] == 'linebreak':
                 tree.children.append(self.tokens[self.index][0])
                 self.index += 1
@@ -500,6 +505,66 @@ class Parser:
 
         return tree
 
+    def parse_switchstatement(self):
+        tree = Node('switchstatement')
+        if self.tokens[self.index][0] == 'WTF?':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        if self.tokens[self.index][0] == '\n':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        while self.tokens[self.index][0] == 'OMG':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+
+            if self.tokens[self.index][1] == 'numbr' or self.tokens[self.index][1] == 'yarn' or self.tokens[self.index][1] == 'numbar' or self.tokens[self.index][1] == 'troof':
+                tree.children.append(self.parse_literal())
+            else:
+                print('error')
+
+            if self.tokens[self.index][0] == '\n':
+                tree.children.append(self.tokens[self.index][0])
+                self.index += 1
+            else:
+                print('error')
+
+            tree.children.append(self.parse_flow_statement())
+
+            if self.tokens[self.index][0] == '\n':
+                tree.children.append(self.tokens[self.index][0])
+                self.index += 1
+            else:
+                print('error')
+        
+        tree.children.append(self.parse_flow_statement())
+
+        if self.tokens[self.index][0] == '\n':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        if self.tokens[self.index][0] == 'OIC':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+        if self.tokens[self.index][0] == '\n':
+            tree.children.append(self.tokens[self.index][0])
+            self.index += 1
+        else:
+            print('error')
+
+
+        return tree
+
 
 lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], ['x', 'identifier'], ['VISIBLE', 'output'], ['7', 'numbr'], 
             ['y', 'identifier'], ['R', 'assignment'], ['2', 'numbr'], ['SUM OF', 'arithmetic'], ['QUOSHUNT OF', 'arithmetic'], ['4', 'numbr'], ['AN', 'operand separator'], ['6', 'numbr'], 
@@ -520,6 +585,10 @@ lexemes = [['HAI', 'program start'], ['\n', 'linebreak'], ['GIMMEH', 'input'], [
             ['OIC', 'flowend'], ['\n', 'linebreak'],
             ['xxx', 'identifier'], ['IS NOW A', 'recast'], ['TROOF', 'datatype'],
             ['number', 'idk'], ['R', 'assignment'],['MAEK', 'typecast'], ['varident', 'identifier'], ['A', 'opsep'], ['TROOF', 'datatype'],
+            ['WTF?', 'switchstart'], ['\n', 'linebreak'], ['OMG', 'switchcase'], ['3', 'numbr'], ['\n', 'linebreak'], ['GIMME', 'input'], ['3', 'numbr'], ['\n', 'linebreak'],
+            ['OMG', 'switchcase'], ['10', 'numbr'], ['\n', 'linebreak'], ['SMOOSH', 'concatenation'], ['a', 'identifier'], ['AN', 'operand separator'], ['b', 'identifier'], ['\n', 'linebreak'],
+            ['SUM OF', 'arithmetic'], ['2', 'numbr'], ['AN', 'operand separator'], ['1', 'numbr'], ['\n', 'linebreak'],
+            ['OIC', 'flowend'], ['\n', 'linebreak'],
             ['KTHXBYE', 'program end']]
 
 p = Parser(lexemes)
