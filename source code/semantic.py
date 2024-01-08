@@ -997,6 +997,60 @@ class Semantic:
         self.toprint.append(string)
     #----------------
 
+    #-----CONTROL----
+    #returns the code block
+    def lookup_code(self, codetype, label):
+        if codetype == 'loop enter':
+            for code in self.loop_block:
+                if code[0] == label: #match loop name to code name
+                    returncode = code[1]
+        
+        if codetype == 'function enter':
+            for code in self.function_block:
+                if code[0] == label: #match func name to code name
+                    returncode = code[1]
+
+        return returncode #list of lists
+
+    def save_loop_code(self, label, codeblock):
+        self.loop_block.append([label, codeblock])
+
+    def loop_code(self, args):
+        #UPPIN n NERFIN
+        if args[2][1] == 'increment':
+            increment = True
+        else:
+            increment = False
+        
+        for i in range(0, len(self.symbol_table)):
+            if self.symbol_table[i][0] == args[4][0]: #4th is position of var
+                symbol = self.symbol_table[i][0]
+                index = i
+                break
+
+        codeblock = lookup_code(args[0], args[1][0]) #loop keyword + label
+
+        if args[5][0] == 'TIL': #5th is position of TIL/WILE keyword
+            condition = False
+        else:
+            condition = True
+        
+        temp = []
+        for i in range(6, len(args)-1):
+            temp.append(args[i]) #get expression
+        condition_code = temp
+
+        while self.comparison(condition_code) != condition:
+            for code in codeblock:
+                self.check_operation(code) #run the code
+            if increment: #increment/decrement
+                self.symbol_table[index][2] += 1
+            else:
+                self.symbol_table[index][2] -= 1
+
+
+    #----------------
+
 SAMPLE_CODE = [
     [['HAI', 'program start'], ['\n', 'linebreak']], [['WAZZUP', 'variable declaration area start'], ['\n', 'linebreak']], 
     [['BTW .', 'comment'], ['\n', 'linebreak']], 
