@@ -582,7 +582,7 @@ class Semantic:
             string = string + temp 
         string = "\"" + string + "\""
         self.toprint.append(string)
-        print(string)
+        # print(string)
     #----------------
 
 SAMPLE_CODE = [
@@ -598,4 +598,3 @@ SAMPLE_CODE = [
 
 s = Semantic(SAMPLE_CODE)
 s.read_code()
-
