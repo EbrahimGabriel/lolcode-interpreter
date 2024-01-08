@@ -268,6 +268,16 @@ class LOLCODE_Interpreter(tk.Tk):
 
     # reads the code in the textbox
     def read_textbox(self):
+        # Assures blank slate to all widgets
+        # Clear existing items in the Treeview
+        for item in self.lextree.get_children():
+            self.lextree.delete(item)
+        # Clear existing items in the Treeview
+        for item in self.symtree.get_children():
+            self.symtree.delete(item)
+        # Clear existing content in the textbox
+        self.terminal.delete(1.0, tk.END)
+        
         # get text and split
         self.code = self.code_textbox.get("1.0", tk.END)
         delimiter = '\n'
@@ -345,6 +355,9 @@ class LOLCODE_Interpreter(tk.Tk):
             self.symtree.insert('', 'end', values=(col1_value, col2_value, col3_value))
 
     def display_terminal(self, toprint):
+        # Clear existing content in the textbox
+        self.terminal.delete(1.0, tk.END)
+        
         for item in toprint:
             self.terminal.insert(tk.END, item + '\n')
     
