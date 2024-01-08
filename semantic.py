@@ -595,7 +595,7 @@ class Semantic:
             string = string + temp 
         string = "\"" + string + "\""
         self.toprint.append(string)
-        print(string)
+        # print(string)
     #----------------
 
 SAMPLE_CODE = [
