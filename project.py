@@ -265,6 +265,7 @@ class LOLCODE_Interpreter(tk.Tk):
         #move this somewhere as long as it does these things properly
         s = semantic.Semantic(self.lines)
         s.read_code()
+        # s.symbol_table <- contains symbol table (list of lists)
         # s.toprint <- contains lines to be printed
         #-----------------
 
