@@ -98,17 +98,19 @@ class LOLCODE_Interpreter(tk.Tk):
         self.label_listbox.pack()
 
         # Create a Treeview widget inside frame_middle_2
-        self.tree = ttk.Treeview(frame_middle_2, columns=("Column1", "Column2"), show="headings")
-        self.tree.heading("Column1", text="Column 1")
-        self.tree.heading("Column2", text="Column 2")
-        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.lextree = ttk.Treeview(frame_middle_2, columns=("Column1", "Column2"), show="headings")
+        self.lextree.heading("Column1", text="Lexeme")
+        self.lextree.heading("Column2", text="Classification")
+        self.lextree.column("Column1", width=100)
+        self.lextree.column("Column2", width=100)
+        self.lextree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Create a Scrollbar for the Treeview
-        self.scrollbar_middle_2 = tk.Scrollbar(frame_middle_2, command=self.tree.yview)
+        self.scrollbar_middle_2 = tk.Scrollbar(frame_middle_2, command=self.lextree.yview)
         self.scrollbar_middle_2.pack(side=tk.RIGHT, fill=tk.Y)
 
         # Configure the Treeview to use the Scrollbar
-        self.tree.config(yscrollcommand=self.scrollbar_middle_2.set)
+        self.lextree.config(yscrollcommand=self.scrollbar_middle_2.set)
 
         # Create a frame for middle component 3 (1/3 width) with a margin
         self.frame_middle_3 = tk.Frame(frame_middle, width=width_middle_3 - 10, height=height_middle - 10, bd=2,
@@ -117,8 +119,22 @@ class LOLCODE_Interpreter(tk.Tk):
         self.frame_middle_3.pack_propagate(False)
 
         # Create a frame for widget 5
-        widget5 = tk.Label(self.frame_middle_3, text="Widget 5", font=("Helvetica", 12))
+        widget5 = tk.Label(self.frame_middle_3, text="Symbol Table", font=("Helvetica", 12), bg="lightgray")
         widget5.pack(expand=True, fill=tk.BOTH)
+        
+        # Create a Treeview widget inside frame_middle_3
+        self.symtree = ttk.Treeview(self.frame_middle_3, columns=("Column1", "Column2", "Column3"), show="headings")
+        self.symtree.heading("Column1", text="Identifier")
+        self.symtree.heading("Column2", text="Datatype")
+        self.symtree.heading("Column3", text="Value")
+        self.symtree.column("Column1", width=100)
+        self.symtree.column("Column2", width=100)
+        self.symtree.column("Column3", width=100)
+        self.symtree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        
+        # Create a Scrollbar for the Treeview
+        self.scrollbar_middle_3 = tk.Scrollbar(self.frame_middle_3, command=self.symtree.yview)
+        self.scrollbar_middle_3.pack(side=tk.RIGHT, fill=tk.Y)
 
         # Create a frame for the execute area (1/10 height)
         self.frame_execute = tk.Frame(self, width=window_width - 20, height=height_execute, bd=2, bg="lightgray")
@@ -260,13 +276,17 @@ class LOLCODE_Interpreter(tk.Tk):
             self.lines.append(temp)
                 
         self.display_lexemes()
+        
 
         #-----------------
         #move this somewhere as long as it does these things properly
         s = semantic.Semantic(self.lines)
         s.read_code()
         # s.symbol_table <- contains symbol table (list of lists)
+        print(s.symbol_table)
+        self.display_symboltable(s.symbol_table)
         # s.toprint <- contains lines to be printed
+        print(s.toprint)
         #-----------------
 
         # print(self.lines)
@@ -277,12 +297,24 @@ class LOLCODE_Interpreter(tk.Tk):
 
     def display_lexemes(self):
         # Clear existing items in the Treeview
-        for item in self.tree.get_children():
-            self.tree.delete(item)
+        for item in self.lextree.get_children():
+            self.lextree.delete(item)
 
         # Insert lexemes into the Treeview
         for lexeme in self.lexemes:
-            self.tree.insert("", tk.END, values=(lexeme[0], lexeme[1]))
+            self.lextree.insert("", tk.END, values=(lexeme[0], lexeme[1]))
+            
+    def display_symboltable(self, symbol_table):
+        # Clear existing items in the Treeview
+        for item in self.symtree.get_children():
+            self.symtree.delete(item)
+
+        # Insert lexemes into the Treeview
+        for item in symbol_table:
+            col1_value = item[0]  # First item in the sub-array
+            col2_value = item[1]
+            col3_value = item[2] if len(item) > 2 else ''  # Third item if available, otherwise an empty string
+            self.symtree.insert('', 'end', values=(col1_value, col2_value, col3_value))
 
     # tokenizes one line and returns its tokens
     def tokenize_line(self, line):
