@@ -1,4 +1,5 @@
-# cmsc124-project
+# CMSC 124 Project
+# LOLCODE Interpreter
 
 Run project.py to start the GUI.
 
