@@ -153,8 +153,17 @@ class LOLCODE_Interpreter(tk.Tk):
         frame_bottom.pack_propagate(False)
 
         # Create a frame for widget 3
-        widget3 = tk.Label(frame_bottom, text="Widget 3", font=("Helvetica", 12))
-        widget3.pack(expand=True, fill=tk.BOTH)
+        # widget3 = tk.Label(frame_bottom, text="Widget 3", font=("Helvetica", 12))
+        # widget3.pack(expand=True, fill=tk.BOTH)
+        self.terminal = tk.Text(frame_bottom, wrap=tk.WORD, font=("Helvetica", 12))
+        self.terminal.pack(fill=tk.BOTH, expand=True)
+        
+        # Create a Scrollbar for the Text widget
+        scrollbar = tk.Scrollbar(frame_bottom, command=self.terminal.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Configure Text widget to use the scrollbar
+        self.terminal.configure(yscrollcommand=scrollbar.set)
 
         # contains identified lexemes and their tokens
         self.lexemes = []
@@ -286,7 +295,8 @@ class LOLCODE_Interpreter(tk.Tk):
         print(s.symbol_table)
         self.display_symboltable(s.symbol_table)
         # s.toprint <- contains lines to be printed
-        print(s.toprint)
+        print('toprint', s.toprint)
+        self.display_terminal(s.toprint)
         #-----------------
 
         # print(self.lines)
@@ -316,6 +326,10 @@ class LOLCODE_Interpreter(tk.Tk):
             col3_value = item[2] if len(item) > 2 else ''  # Third item if available, otherwise an empty string
             self.symtree.insert('', 'end', values=(col1_value, col2_value, col3_value))
 
+    def display_terminal(self, toprint):
+        for item in toprint:
+            self.terminal.insert(tk.END, item + '\n')
+    
     # tokenizes one line and returns its tokens
     def tokenize_line(self, line):
         
