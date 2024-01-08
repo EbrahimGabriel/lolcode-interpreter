@@ -65,7 +65,7 @@ class LOLCODE_Interpreter(tk.Tk):
         frame_top_right.pack_propagate(False)
 
         # Create a frame for widget 1.5
-        widget1 = tk.Label(frame_top_right, text="Widget 1.5", font=("Helvetica", 12))
+        widget1 = tk.Label(frame_top_right, text="\"HELLO WORLD\" - LOL CODE Interpreter", font=("Helvetica", 20, "bold"), bg="lightgray")
         widget1.pack(expand=True, fill=tk.BOTH)
 
         # Create a frame for the middle area (4/10 height)
