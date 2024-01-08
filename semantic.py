@@ -1,9 +1,15 @@
 import re
 
+'''
+NO GIMMEH
+ARITHMETIC NOT INFINITE ARITY
+'''
+
+
 class Semantic:
     def __init__(self, tokens):
         self.tokens = tokens
-        self.symbol_table = [] #JUST VARIABLES
+        self.symbol_table = [['IT', 'NOOB']] #JUST VARIABLES
         self.condition_block = [] #CONTAINS IF-ELSE STATEMENTS
         self.loop_block = [] #CONTAINS LOOP STATEMENTS
         self.function_block = [] #CONTAINS FUNCTION STATEMENTS
@@ -22,20 +28,18 @@ class Semantic:
     def read_code(self):
         while not self.error and not self.end:
             for line in self.tokens:
-                # print(line)
                 self.check_operation(line)
         
         #do error related stuff here
     
     def check_operation(self, args):
-        # print(args)
         if args[0][1] in self.operation_categories:
             if args[0][1] == 'variable declaration':
                 self.var_dec(args)
             if args[0][1] in self.arithmetic_categories:
                 self.arithmetic(args)
             if args[0][1] == 'boolean':
-                self.and_all(args)
+                self.boolean(args)
             if args[0][1] == 'compare equal':
                 self.comparison(args)
             if args[0][1] == 'output':
@@ -51,8 +55,11 @@ class Semantic:
             return False
 
     def implicit_typecast(self, val, stype, etype): #start type, end type 
-        ###NOT YET DONE
+        ### NOT YET DONE
         if stype == 'numbar':
+            if etype == 'numbr':
+                return int(val)
+
             if etype == 'troof':
                 if val != 0:
                     return True
@@ -84,13 +91,28 @@ class Semantic:
                     return 1
                 else:
                     return 0
+            
+            if etype == 'yarn':
+                return val
         
         if stype == 'yarn':
-            if val.isdigit():
+            if val.isdigit() and (etype == 'numbar' or etype == 'numbr'):
                 if etype == 'numbar':
                     return float(val)
                 if etype == 'numbr':
                     return int(val)
+            
+            elif etype == 'troof':
+                return val
+            
+            else: #yarn -> numbar/numbr while not a digit
+                self.error = True
+        
+        if stype == 'NOOB':
+            if etype == 'troof':
+                return 'WIN'
+            else: #no typecasting to other types
+                self.error = True
 
     #-----VAR DECLARATION-----
     def var_dec(self, args):
@@ -127,8 +149,6 @@ class Semantic:
                 self.symbol_table.append(temp)
 
     #-------------------------
-
-#ADD NOOB CONSIDERATION
 
     #-----ARITHMETIC-----
     #NOT INFINITE ARITY! BUT CAN NEST INFINITELY(?)
@@ -280,7 +300,7 @@ class Semantic:
 
     #-----BOOLEAN-----
     #NO CONSIDERATION FOR OTHER EXPRESSIONS WITHIN YET
-    def and_all(self, args):
+    def boolean(self, args):
         count = 0
         values = []
         #iterate through all operands and append to values list
@@ -327,10 +347,10 @@ class Semantic:
    #-----COMPARISON-----
     #covers >= <= and ==
     #ONLY ASSUMES VALUES ARE NUMBR/NUMBAR, NO TROOF or YARN
-    #NO CONSIDERATION FOR val2 IS NUMBAR YET!
+    #typecasts everthing into numbar, 2 = 2.0 and 3.5 = 3.5 so it shouldnt matter
     def comparison(self, args):
         numbar = False
-        # not relational, ==
+        # not relational, == or !=
         if len(args) == 5: #keyword identifier keyword identifier linebreak
             #get values
             if args[1][1] == 'identifier':
@@ -397,7 +417,16 @@ class Semantic:
                 if args[3][1] == 'yarn':
                     self.error = True
 
-            print(val1 == val2)
+            if args[0][1] == 'compare equal':
+                if val1 == val2:
+                    return 'WIN'
+                else:
+                    return 'FAIL'
+            else:
+                if val1 != val2:
+                    return 'WIN'
+                else:
+                    return 'FAIL'
 
         #is relational
         if len(args) == 8: #keyword identifier keyword keyword identifier keyword identifier linebreak
@@ -470,10 +499,28 @@ class Semantic:
                     self.error = True
             
             #check if biggr of or smallr of and return proper expression
-            if args[3][1] == 'max':
-                print(val1 >= val2)
+            if args[0][1] == 'compare equal':
+                if args[3][1] == 'max':
+                    if val1 >= val2:
+                        return 'WIN'
+                    else:
+                        return 'FAIL'
+                else:
+                    if val1 <= val2:
+                        return 'WIN'
+                    else:
+                        return 'FAIL'
             else:
-                print(val1 <= val2)
+                if args[3][1] == 'max':
+                    if val1 > val2:
+                        return 'WIN'
+                    else:
+                        return 'FAIL'
+                else:
+                    if val1 < val2:
+                        return 'WIN'
+                    else:
+                        return 'FAIL'
     #-----------------
 
     #-----OUTPUT-----
