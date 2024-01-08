@@ -11,11 +11,13 @@ class Semantic:
         self.end = False
 
         #list of categories that have an operation associated with it
-        self.operation_categories = ['variable declaration', 
-        'addition', 'difference', 'multiplication', 'division', 
-        'boolean', 'compare equal', 'max', 'output']
+        self.operation_categories = [
+        'variable declaration', 
+        'addition', 'difference', 'multiplication', 'division', 'modulo', 'max', 'min'
+        'boolean', 'compare equal', 
+        'output']
         
-        self.arithmetic_categories = ['addition', 'difference', 'multiplication', 'division'] 
+        self.arithmetic_categories = ['addition', 'difference', 'multiplication', 'division', 'modulo', 'max', 'min'] 
 
     def read_code(self):
         while not self.error and not self.end:
@@ -31,13 +33,11 @@ class Semantic:
             if args[0][1] == 'variable declaration':
                 self.var_dec(args)
             if args[0][1] in self.arithmetic_categories:
-                print(self.arithmetic(args))
+                self.arithmetic(args)
             if args[0][1] == 'boolean':
                 self.and_all(args)
             if args[0][1] == 'compare equal':
-                self.compare_equal(args)
-            if args[0][1] == 'max':
-                self.max(args)
+                self.comparison(args)
             if args[0][1] == 'output':
                 self.lol_print(args)
         if args[0][1] == 'program end':
@@ -106,12 +106,32 @@ class Semantic:
             else:
                 val = args[3][0]
             temp = [args[1][0], args[3][1], val]
-            self.symbol_table.append(temp)      
+            self.symbol_table.append(temp)
+        else: #it has an expression
+            
+            ###CHECK WHAT KIND OF EXPRESSION
+            if args[3][1] in self.arithmetic_categories:
+                temp = []
+                count = 3
+                while args[count][1] != 'linebreak':
+                    temp.append(args[count])
+                    count += 1
+                
+                val = self.arithmetic(temp)
+                if isinstance(val, float):
+                    temp2 = 'numbar'
+                else:
+                    temp2 = 'numbr'
+
+                temp = [args[1][0], temp2, val]
+                self.symbol_table.append(temp)
+
     #-------------------------
 
 #ADD NOOB CONSIDERATION
 
     #-----ARITHMETIC-----
+    #NOT INFINITE ARITY! BUT CAN NEST INFINITELY(?)
     def arithmetic(self, args):
 
         numbar = False
@@ -143,12 +163,12 @@ class Semantic:
                     if numbar:
                         val1 = self.implicit_typecast(symbol[2], 'troof', 'numbar')
                     else:
-                        val1 = int(symbol[2])
+                        val1 = self.implicit_typecast(symbol[2], 'troof', 'numbr')
                 if symbol[1] == 'yarn':
                     if numbar:
                         val1 = self.implicit_typecast(symbol[2], 'yarn', 'numbar')
                     else:
-                        val1 = int(symbol[2])
+                        val1 = self.implicit_typecast(symbol[2], 'yarn', 'numbr')
                 #NOOB
                 else:
                     self.error = True
@@ -162,10 +182,9 @@ class Semantic:
             temp.append(args[3])
             temp.append(args[4])
 
-            if args[1][1] == 'addition':
-                val1 = self.arithmetic(temp)
-            
+            val1 = self.arithmetic(temp)
             i += 3
+
         else:
             if args[1][1] == 'numbar':
                 val1 = float(args[1][0])
@@ -178,13 +197,12 @@ class Semantic:
                 if numbar:
                     val1 = self.implicit_typecast(args[1][0], 'troof', 'numbar')
                 else:
-                    val1 = int(args[1][0])
+                    val1 = self.implicit_typecast(symbol[2], 'troof', 'numbr')
             if args[1][1] == 'yarn':
                 if numbar:
                     val1 = self.implicit_typecast(args[1][0], 'yarn', 'numbar')
                 else:
-                    val1 = int(args[1][0])
-
+                    val1 = self.implicit_typecast(symbol[2], 'yarn', 'numbr')
         
         #2nd value
         if args[i][1] == 'identifier':
@@ -201,24 +219,24 @@ class Semantic:
                     if numbar:
                         val2 = self.implicit_typecast(symbol[2], 'troof', 'numbar')
                     else:
-                        val2 = int(symbol[2])
+                        val2 = self.implicit_typecast(symbol[2], 'troof', 'numbr')
                 if symbol[1] == 'yarn':
                     if numbar:
                         val2 = self.implicit_typecast(symbol[2], 'yarn', 'numbar')
                     else:
-                        val2 = int(symbol[2])
+                        val2 = self.implicit_typecast(symbol[2], 'yarn', 'numbr')
             else:
                 self.error = True
 
         elif args[i][1] in self.arithmetic_categories:
             temp = []
+            temp.append(args[i])
             temp.append(args[i+1])
             temp.append(args[i+2])
             temp.append(args[i+3])
-            temp.append(args[i+4])
 
-            if args[i+1][1] == 'addition':
-                val2 = self.arithmetic(temp)
+            val2 = self.arithmetic(temp)
+
         else:
             if args[i][1] == 'numbar':
                 val2 = float(args[i][0])
@@ -231,12 +249,12 @@ class Semantic:
                 if numbar:
                     val2 = self.implicit_typecast(args[i][0], 'troof', 'numbar')
                 else:
-                    val2 = int(args[i][0])
+                    val2 = self.implicit_typecast(symbol[2], 'troof', 'numbr')
             if args[i][1] == 'yarn':
                 if numbar:
                     val2 = self.implicit_typecast(args[i][0], 'yarn', 'numbar')
                 else:
-                    val2 = int(args[i][0])
+                    val2 = self.implicit_typecast(symbol[2], 'yarn', 'numbr')
 
         if args[0][1] == 'addition':
             return val1 + val2
@@ -246,9 +264,18 @@ class Semantic:
             return val1 * val2
         elif args[0][1] == 'division':
             return val1 / val2
-
-    def max(self, args):
-        pass
+        elif args[0][1] == 'modulo':
+            return val1 % val2
+        elif args[0][1] == 'max':
+            if val1 >= val2:
+                return val1
+            else:
+                return val2
+        elif args[0][1] == 'min':
+            if val1 >= val2:
+                return val2
+            else:
+                return val1
     #--------------------
 
     #-----BOOLEAN-----
@@ -294,10 +321,14 @@ class Semantic:
             result = result and value
         print(result)
 
+
+   #-----------------
+
+   #-----COMPARISON-----
     #covers >= <= and ==
     #ONLY ASSUMES VALUES ARE NUMBR/NUMBAR, NO TROOF or YARN
     #NO CONSIDERATION FOR val2 IS NUMBAR YET!
-    def compare_equal(self, args):
+    def comparison(self, args):
         numbar = False
         # not relational, ==
         if len(args) == 5: #keyword identifier keyword identifier linebreak
@@ -461,13 +492,24 @@ class Semantic:
                         values.append(self.implicit_typecast(symbol[2], 'numbr', 'yarn'))
                     if symbol[1] == 'troof': #stored as string, no need to typecast
                         values.append(symbol[2])
-                        
                     if symbol[1] == 'yarn': #need to remove quotes
                         temp = re.sub("\"", "", symbol[2])
                         values.append(temp)
+                    if symbol[1] == 'NOOB':
+                        values.append("NOOB")
                 else:
                     self.error = True
-            else:
+
+            elif args[count][1] in self.arithmetic_categories:
+                temp = []
+                while args[count][1] != 'concatenation operator (VISIBLE)' and args[count][1] != 'linebreak':
+                    temp.append(args[count])
+                    count += 1
+                count -= 1
+
+                values.append(self.implicit_typecast(self.arithmetic(temp), 'numbar', 'yarn'))
+
+            else: #raw value
                 if args[count][1] == 'numbar':
                     values.append(self.implicit_typecast(args[count][0], 'numbar', 'yarn'))
                 if args[count][1] == 'numbr':
@@ -484,37 +526,32 @@ class Semantic:
             string = string + value
         print(string)
     #----------------
-'''
-HAI
-WAZZUP
-I HAS A x ITZ 3
-I HAS A y ITZ 2
-I HAS A z ITZ FAIL
-BUHBYE
-BTW COMMENT HERE
-SUM OF 5 AN 7 BTW MEOWMEOW MEOW = 12
-SUM OF SUM OF 5 AN 7 AN x
-ALL OF x AN y AN z MKAY = FALSE (true ^ true ^ false)
-BOTH SAEM x AN BIGGR OF x AN y = TRUE (3 >= 2)
-VISIBLE "HELLO WORLD" + "MEOW MEOW" = HELLO WORLDMEOW MEOW
-KTHXBYE
-'''
+
 SAMPLE_CODE = [
-[['HAI', 'program start'], ['\n', 'linebreak']], 
-[['WAZZUP', 'variable declaration area start'], ['\n', 'linebreak']], 
-[['I HAS A', 'variable declaration'], ['x', 'identifier'], ['ITZ', 'variable initialization'], ['3', 'numbr'], ['\n', 'linebreak']], 
-[['I HAS A', 'variable declaration'], ['y', 'identifier'], ['ITZ', 'variable initialization'], ['2', 'numbr'], ['\n', 'linebreak']], 
-[['I HAS A', 'variable declaration'], ['z', 'identifier'], ['ITS', 'identifier'], ['FAIL', 'troof'], ['\n', 'linebreak']], 
-[['BTW .', 'comment'], ['\n', 'linebreak']],
-[['BUHBYE', 'variable declaration area end'], ['\n', 'linebreak']], 
-[['SUM OF', 'addition'], ['5', 'numbr'], ['AN', 'operand separator'], ['7', 'numbr'], ['BTW .', 'comment'], ['\n', 'linebreak']], 
-[['PRODUKT OF', 'multiplication'], ['SUM OF', 'addition'], ['5', 'numbr'], ['AN', 'operand separator'], ['7', 'numbr'], ['AN', 'operand separator'], ['x', 'identifier']],
-[['ALL OF', 'boolean'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['AN', 'operand separator'], ['z', 'identifier'], ['MKAY', 'end of operands'], ['\n', 'linebreak']], 
-[['BOTH SAEM', 'compare equal'], ['x', 'identifier'], ['AN', 'operand separator'], ['BIGGR OF', 'max'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
-[['VISIBLE', 'output'], ['"HELLO WORLD"', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['"MEOW MEOW"', 'yarn'], ['\n', 'linebreak']],
-[['VISIBLE', 'output'], ['x', 'identifier'], ['\n', 'linebreak']],
-[['KTHXBYE', 'program end'], ['\n', 'linebreak']]
-]
+    [['HAI', 'program start'], ['\n', 'linebreak']], [['WAZZUP', 'variable declaration area start'], ['\n', 'linebreak']], 
+    [['BTW .', 'comment'], ['\n', 'linebreak']], 
+    [['I HAS A', 'variable declaration'], ['x', 'identifier'], ['ITZ', 'variable initialization'], ['3', 'numbr'], ['\n', 'linebreak']], 
+    [['I HAS A', 'variable declaration'], ['y', 'identifier'], ['ITZ', 'variable initialization'], ['4', 'numbr'], ['\n', 'linebreak']], 
+    [['BUHBYE', 'variable declaration area end'], ['\n', 'linebreak']], 
+    [['VISIBLE', 'output'], ['x', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['"+"', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['y', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['" = "', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['SUM OF', 'addition'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
+    [['VISIBLE', 'output'], ['x', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['"-"', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['y', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['" = "', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['DIFF OF', 'difference'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
+    [['VISIBLE', 'output'], ['x', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['"*"', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['y', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['" = "', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['PRODUKT OF', 'multiplication'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
+    [['VISIBLE', 'output'], ['x', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['"/"', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['y', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['" = "', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['QUOSHUNT OF', 'division'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
+    [['VISIBLE', 'output'], ['x', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['"%"', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['y', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['" = "', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['MOD OF', 'modulo'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
+    [['VISIBLE', 'output'], ['"max("', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['x', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['","', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['y', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['") = "', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['BIGGR OF', 'max'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
+    [['VISIBLE', 'output'], ['"min("', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['x', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['","', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['y', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['") = "', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['SMALLR OF', 'min'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
+    [['BTW .', 'comment'], ['\n', 'linebreak']], 
+    [['VISIBLE', 'output'], ['SUM OF', 'addition'], ['PRODUKT OF', 'multiplication'], ['x', 'identifier'], ['AN', 'operand separator'], ['x', 'identifier'], ['AN', 'operand separator'], ['PRODUKT OF', 'multiplication'], ['y', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
+    [['BTW .', 'comment'], ['\n', 'linebreak']], 
+    [['VISIBLE', 'output'], ['PRODUKT OF', 'multiplication'], ['SUM OF', 'addition'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['AN', 'operand separator'], ['SUM OF', 'addition'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
+    [['BTW .', 'comment'], ['\n', 'linebreak']], 
+    [['VISIBLE', 'output'], ['DIFF OF', 'difference'], ['BIGGR OF', 'max'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['AN', 'operand separator'], ['SMALLR OF', 'min'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
+    [['BTW .', 'comment'], ['\n', 'linebreak']], 
+    [['VISIBLE', 'output'], ['SUM OF', 'addition'], ['x', 'identifier'], ['AN', 'operand separator'], ['SUM OF', 'addition'], ['QUOSHUNT OF', 'division'], ['y', 'identifier'], ['AN', 'operand separator'], ['x', 'identifier'], ['AN', 'operand separator'], ['FAIL', 'troof'], ['\n', 'linebreak']], 
+    [['VISIBLE', 'output'], ['SUM OF', 'addition'], ['x', 'identifier'], ['AN', 'operand separator'], ['SUM OF', 'addition'], ['QUOSHUNT OF', 'division'], ['"17"', 'yarn'], ['AN', 'operand separator'], ['x', 'identifier'], ['AN', 'operand separator'], ['FAIL', 'troof'], ['\n', 'linebreak']], 
+    [['KTHXBYE', 'program end'], ['\n', 'linebreak']]
+    ]
 
 s = Semantic(SAMPLE_CODE)
 s.read_code()
+

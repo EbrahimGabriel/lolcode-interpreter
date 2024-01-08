@@ -9,6 +9,8 @@ import os as os
 import tkinter as tk
 from tkinter import filedialog, ttk
 
+import semantic
+
 class LOLCODE_Interpreter(tk.Tk):
     def __init__(self):
         # ui stuff
@@ -246,7 +248,10 @@ class LOLCODE_Interpreter(tk.Tk):
         # tokenize each line then identify lexemes
         self.lexemes = []
         for line in self.code:
-            tokens = self.tokenize_line(line)
+            line2 = line.lstrip()
+            if line2 == '':
+                continue
+            tokens = self.tokenize_line(line2)
             temp = []
             for token in tokens:
                 lexeme = self.identify_token(token)
@@ -256,6 +261,9 @@ class LOLCODE_Interpreter(tk.Tk):
                 
         self.display_lexemes()
         print(self.lines)
+        s = semantic.Semantic(self.lines)
+        s.read_code()
+        # print(self.lines)
         # Print lexeme array containing sub-arrays of token and category
         # self.lexemes = ['token', 'category'],...
         # for lexeme in self.lexemes:
