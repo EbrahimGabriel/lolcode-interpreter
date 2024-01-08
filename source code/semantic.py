@@ -1,11 +1,10 @@
 import re
-import math
 
 '''
 NO GIMMEH
 NESTED ARITHMETIC ONLY READS OTHER ARITHMETIC EXPRESSIONS
 COMPARISON ONLY USES MAX/MIN AND DOES NOT NEST
-NESTING INFINITE ARITY BOOLEAN AT 2ND OPERAND FAILS
+NESTING BOOLEAN WITH NOT FAILS
 '''
 
 
@@ -119,7 +118,7 @@ class Semantic:
             temp = val[1:-1]
             if temp.isdigit() and (etype == 'numbar' or etype == 'numbr'):
                 if etype == 'numbar':
-                    return math.trunc(float(temp), 2)
+                    return round(float(temp), 2)
                 if etype == 'numbr':
                     return int(temp)
             
@@ -181,7 +180,7 @@ class Semantic:
                 temp = [args[1][0], 'troof', val]
                 self.symbol_table.append(temp)
             
-            if args[3][1] in self.boolean_categories or args[count][1] in self.boolean_infinite:
+            if args[3][1] in self.boolean_categories or args[3][1] in self.boolean_infinite:
                 temp = []
                 count = 3
                 while args[count][1] != 'linebreak':
@@ -236,7 +235,7 @@ class Semantic:
 
                 temp = [args[0][0], 'troof', val]
             
-            if args[2][1] in self.boolean_categories or args[count][1] in self.boolean_infinite:
+            if args[2][1] in self.boolean_categories or args[2][1] in self.boolean_infinite:
                 count = 2
                 while args[count][1] != 'linebreak':
                     temp.append(args[count])
@@ -468,7 +467,6 @@ class Semantic:
     #-----BOOLEAN-----
     def boolean(self, args, nest):
         values = []
-        print(args)
         #infinite arity
         if not nest and (args[0][1] == 'boolalland' or args[0][1] == 'boolallor'):
             count = 1
@@ -494,10 +492,10 @@ class Semantic:
                     count2 = 0
 
                     if args[j][1] in self.boolean_categories:
-                        # if args[j][1] == 'boolnot':
-                        #     limit = 1
-                        # else:
-                        limit = 2
+                        if args[j][1] == 'boolnot':
+                            limit = 1
+                        else:
+                            limit = 2
                         while count2 < limit:
                             if args[j][1] in self.boolean_categories:
                                 if args[j][1] != 'boolnot':
@@ -558,10 +556,10 @@ class Semantic:
             count2 = 0
 
             if args[j][1] in self.boolean_categories:
-                # if args[j][1] == 'boolnot':
-                #     limit = 1
-                # else:
-                limit = 2
+                if args[j][1] == 'boolnot':
+                    limit = 1
+                else:
+                    limit = 2
                 while count2 < limit:
                     if args[j][1] in self.boolean_categories:
                         if args[j][1] != 'boolnot':
@@ -578,7 +576,7 @@ class Semantic:
                 if args[1][1] == 'boolnot':
                     temp.append(args[1])
                     temp.append(args[2])
-                    count += 1
+                    i += 1
                 else:
                     temp.append(args[1])
                     temp.append(args[2])
@@ -621,10 +619,10 @@ class Semantic:
                 count2 = 0
 
                 if args[j][1] in self.boolean_categories:
-                    # if args[j][1] == 'boolnot':
-                    #     limit = 1
-                    # else:
-                    limit = 2
+                    if args[j][1] == 'boolnot':
+                        limit = 1
+                    else:
+                        limit = 2
                     while count2 < limit:
                         if args[j][1] in self.boolean_categories:
                             if args[j][1] != 'boolnot':
@@ -658,7 +656,6 @@ class Semantic:
                 if args[i][1] == 'yarn':
                     values.append(self.implicit_typecast(args[i][0], 'yarn', 'troof'))
         
-
         if values[0] == 'WIN':
             result = True
         else:
@@ -678,8 +675,7 @@ class Semantic:
                 elif args[0][1] == 'boolxor':
                     result = (result and not temp) or (not result and temp)
         else:
-            result = not values[0]
-
+            result = not result
         if result:
             return 'WIN'
         else:
@@ -936,7 +932,7 @@ class Semantic:
                     if symbol[1] == 'yarn':
                         values.append(symbol[2])
                     if symbol[1] == 'NOOB':
-                        values.append("NOOB")
+                        values.append("\"NOOB\"")
                 else:
                     self.error = True
 
@@ -947,6 +943,9 @@ class Semantic:
                         symbol = self.read_symbol_table(arg[0])
                         if symbol[1] == 'numbar':
                             numbar = True
+                    
+                    if arg[1] == 'division':
+                        numbar = True
 
                     if arg[1] == 'numbar':
                         numbar = True

@@ -1,8 +1,8 @@
 HAI
     WAZZUP
         BTW variable dec
-        I HAS A x ITZ 3
-        I HAS A y ITZ 4
+        I HAS A x ITZ 4
+        I HAS A y ITZ 3
     BUHBYE
     
     BTW no gimmeh so i assigned values myself
