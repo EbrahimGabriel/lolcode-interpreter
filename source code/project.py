@@ -268,15 +268,20 @@ class LOLCODE_Interpreter(tk.Tk):
 
     # reads the code in the textbox
     def read_textbox(self):
+        # Reset variables
+        self.code = []
+        self.lexemes = []
+        self.lines = []
         # Assures blank slate to all widgets
+        # Clear existing content in the textbox
+        self.terminal.delete(1.0, tk.END)
         # Clear existing items in the Treeview
         for item in self.lextree.get_children():
             self.lextree.delete(item)
         # Clear existing items in the Treeview
         for item in self.symtree.get_children():
             self.symtree.delete(item)
-        # Clear existing content in the textbox
-        self.terminal.delete(1.0, tk.END)
+        
         
         # get text and split
         self.code = self.code_textbox.get("1.0", tk.END)
@@ -331,7 +336,7 @@ class LOLCODE_Interpreter(tk.Tk):
         # Print lexeme array containing sub-arrays of token and category
         # self.lexemes = ['token', 'category'],...
         # for lexeme in self.lexemes:
-            # print(lexeme)
+            # print(lexeme)      
 
     def display_lexemes(self):
         # Clear existing items in the Treeview
