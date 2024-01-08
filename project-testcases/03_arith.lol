@@ -1,12 +1,11 @@
 HAI
     WAZZUP
         BTW variable dec
-        I HAS A x
-        I HAS A y
+        I HAS A x ITZ 3
+        I HAS A y ITZ 4
     BUHBYE
     
-    GIMMEH x
-    GIMMEH y
+    BTW no gimmeh so i assigned values myself
 
     VISIBLE x + "+" + y + " = " + SUM OF x AN y
     VISIBLE x + "-" + y + " = " + DIFF OF x AN y

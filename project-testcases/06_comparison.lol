@@ -1,13 +1,10 @@
 HAI
     WAZZUP
-        I HAS A x
-        I HAS A y
+        I HAS A x ITZ 4
+        I HAS A y ITZ 4
     BUHBYE
     
-    VISIBLE "Value 1: "
-    GIMMEH x
-    VISIBLE "Value 2: "
-    GIMMEH y
+    BTW no gimmeh
 
     BTW x==y
     VISIBLE BOTH SAEM x AN y

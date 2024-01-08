@@ -864,7 +864,7 @@ class Semantic:
 
             elif args[count][1] in self.arithmetic_categories:
                 temp = []
-                while args[count][1] != 'concatenation operator (VISIBLE)' and args[count][1] != 'linebreak':
+                while args[count][1] != 'operand separator' and args[count][1] != 'linebreak':
                     temp.append(args[count])
                     count += 1
                 count -= 1
@@ -872,7 +872,7 @@ class Semantic:
             
             elif args[count][1] in self.comparison_categories:
                 temp = []
-                while args[count][1] != 'concatenation operator (VISIBLE)' and args[count][1] != 'linebreak':
+                while args[count][1] != 'operand separator' and args[count][1] != 'linebreak':
                     temp.append(args[count])
                     count += 1
                 count -= 1
@@ -880,7 +880,7 @@ class Semantic:
             
             elif args[count][1] in self.boolean_categories:
                 temp = []
-                while args[count][1] != 'concatenation operator (VISIBLE)' and args[count][1] != 'linebreak':
+                while args[count][1] != 'operand separator' and args[count][1] != 'linebreak':
                     temp.append(args[count])
                     count += 1
                 count -= 1

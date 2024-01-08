@@ -5,11 +5,14 @@ HAI
         I HAS A y
     BUHBYE
     
+    OBTW
+    BTW cant run gimmeh
     VISIBLE "Hello! Please enter two strings:"
     VISIBLE "String 1: "
     GIMMEH x
     VISIBLE "String 2: "
     GIMMEH y
+    TLDR
 
     VISIBLE SMOOSH x AN y
 
@@ -17,11 +20,13 @@ HAI
 
     x R SMOOSH x AN y
     y R 100
-    VISIBLE x AN 52615 AN y AN MOD OF 10 AN 6 AN "End!"
 
-    VISIBLE 10 AN y
+    BTW replaced an with + because idk what it do
+    VISIBLE x + 52615 + y + MOD OF 10 AN 6 + "End!"
+
+    VISIBLE 10 + y
     y IS NOW A NUMBAR
-    VISIBLE 10 AN y
+    VISIBLE 10 + y
 
     y R 0
     y R MAEK y TROOF
