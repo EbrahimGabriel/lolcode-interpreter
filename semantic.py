@@ -67,7 +67,7 @@ class Semantic:
                 else:
                     return False
             if etype == 'yarn':
-                return str(val)
+                return "\"" + str(val) + "\""
     
         if stype == 'numbr':
             if etype == 'numbar':
@@ -78,7 +78,7 @@ class Semantic:
                 else:
                     return False
             if etype == 'yarn':
-                return str(val)
+                return "\"" + str(val) + "\""
         
         if stype == 'troof':
             if etype == 'numbar':
@@ -94,17 +94,18 @@ class Semantic:
                     return 0
             
             if etype == 'yarn':
-                return val
+                return "\"" + val + "\""
         
         if stype == 'yarn':
-            if val.isdigit() and (etype == 'numbar' or etype == 'numbr'):
+            temp = val[1:-1]
+            if temp.isdigit() and (etype == 'numbar' or etype == 'numbr'):
                 if etype == 'numbar':
-                    return float(val)
+                    return float(temp)
                 if etype == 'numbr':
-                    return int(val)
+                    return int(temp)
             
             elif etype == 'troof':
-                return val
+                return temp
             
             else: #yarn -> numbar/numbr while not a digit
                 self.error = True
@@ -195,17 +196,33 @@ class Semantic:
                     self.error = True
             else:
                 self.error = True
-        #not a variable, raw value is in the args
+
         elif args[1][1] in self.arithmetic_categories:
             temp = []
-            temp.append(args[1])
-            temp.append(args[2])
-            temp.append(args[3])
-            temp.append(args[4])
+            j = 2
+            count = 0 #count how many values we've encountered
+            #deeper nesting!
+            if args[2][1] in self.arithmetic_categories:
+                while count < 2:
+                    if args[j][1] in self.arithmetic_categories:
+                        count -= 1
+                    if args[j][1] == 'identifier' or args[j][1] == 'numbar' or args[j][1] == 'numbr' or args[j][1] == 'troof' or args[j][1] == 'yarn':
+                        count += 1
+                    temp.append(args[j])
+                    j += 1
+                    i += 1
+                i += 1
+                val1 = self.arithmetic(temp)
+            else:
+                temp.append(args[1])
+                temp.append(args[2])
+                temp.append(args[3])
+                temp.append(args[4])
 
-            val1 = self.arithmetic(temp)
-            i += 3
+                val1 = self.arithmetic(temp)
+                i += 3
 
+        #not a variable, raw value is in the args
         else:
             if args[1][1] == 'numbar':
                 val1 = float(args[1][0])
@@ -218,12 +235,12 @@ class Semantic:
                 if numbar:
                     val1 = self.implicit_typecast(args[1][0], 'troof', 'numbar')
                 else:
-                    val1 = self.implicit_typecast(symbol[2], 'troof', 'numbr')
+                    val1 = self.implicit_typecast(args[1][0], 'troof', 'numbr')
             if args[1][1] == 'yarn':
                 if numbar:
                     val1 = self.implicit_typecast(args[1][0], 'yarn', 'numbar')
                 else:
-                    val1 = self.implicit_typecast(symbol[2], 'yarn', 'numbr')
+                    val1 = self.implicit_typecast(args[1][0], 'yarn', 'numbr')
         
         #2nd value
         if args[i][1] == 'identifier':
@@ -251,12 +268,26 @@ class Semantic:
 
         elif args[i][1] in self.arithmetic_categories:
             temp = []
-            temp.append(args[i])
-            temp.append(args[i+1])
-            temp.append(args[i+2])
-            temp.append(args[i+3])
+            j = i+1
+            count = 0 #count how many values we've encountered
+            #deeper nesting!
+            if args[j][1] in self.arithmetic_categories:
+                while count < 2:
+                    if args[j][1] in self.arithmetic_categories:
+                        count -= 1
+                    if args[j][1] == 'identifier' or args[j][1] == 'numbar' or args[j][1] == 'numbr' or args[j][1] == 'troof' or args[j][1] == 'yarn':
+                        count += 1
+                    temp.append(args[j])
+                    j += 1
+                val2 = self.arithmetic(temp)
 
-            val2 = self.arithmetic(temp)
+            else:
+                temp.append(args[i])
+                temp.append(args[i+1])
+                temp.append(args[i+2])
+                temp.append(args[i+3])
+
+                val2 = self.arithmetic(temp)
 
         else:
             if args[i][1] == 'numbar':
@@ -270,12 +301,12 @@ class Semantic:
                 if numbar:
                     val2 = self.implicit_typecast(args[i][0], 'troof', 'numbar')
                 else:
-                    val2 = self.implicit_typecast(symbol[2], 'troof', 'numbr')
+                    val2 = self.implicit_typecast(args[i][0], 'troof', 'numbr')
             if args[i][1] == 'yarn':
                 if numbar:
                     val2 = self.implicit_typecast(args[i][0], 'yarn', 'numbar')
                 else:
-                    val2 = self.implicit_typecast(symbol[2], 'yarn', 'numbr')
+                    val2 = self.implicit_typecast(args[i][0], 'yarn', 'numbr')
 
         if args[0][1] == 'addition':
             return val1 + val2
@@ -504,10 +535,9 @@ class Semantic:
                     if symbol[1] == 'numbr':
                         values.append(self.implicit_typecast(symbol[2], 'numbr', 'yarn'))
                     if symbol[1] == 'troof': #stored as string, no need to typecast
+                        values.append(self.implicit_typecast(symbol[2], 'troof', 'yarn'))
+                    if symbol[1] == 'yarn':
                         values.append(symbol[2])
-                    if symbol[1] == 'yarn': #need to remove quotes
-                        temp = re.sub("\"", "", symbol[2])
-                        values.append(temp)
                     if symbol[1] == 'NOOB':
                         values.append("NOOB")
                 else:
@@ -519,7 +549,6 @@ class Semantic:
                     temp.append(args[count])
                     count += 1
                 count -= 1
-
                 values.append(self.implicit_typecast(self.arithmetic(temp), 'numbar', 'yarn'))
 
             else: #raw value
@@ -530,13 +559,17 @@ class Semantic:
                 if args[count][1] == 'troof':
                     values.append(args[count][0])
                 if args[count][1] == 'yarn':
-                    temp = re.sub("\"", "", args[count][0])
-                    values.append(temp)
+                    values.append(args[count][0])
             count += 1
         
         string = ''
+        # print(values)
         for value in values:
-            string = string + value
+            # print(value)
+            temp = value[1:-1]
+            # print(temp)
+            string = string + temp 
+        string = "\"" + string + "\""
         self.toprint.append(string)
         print(string)
     #----------------
