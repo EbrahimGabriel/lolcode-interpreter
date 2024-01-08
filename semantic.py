@@ -3,13 +3,19 @@ import re
 class Semantic:
     def __init__(self, tokens):
         self.tokens = tokens
-        self.symbol_table = []
+        self.symbol_table = [] #JUST VARIABLES
+        self.condition_block = [] #CONTAINS IF-ELSE STATEMENTS
+        self.loop_block = [] #CONTAINS LOOP STATEMENTS
+        self.function_block = [] #CONTAINS FUNCTION STATEMENTS
         self.error = False
         self.end = False
 
         #list of categories that have an operation associated with it
-        self.operation_categories = ['variable declaration', 'addition', 'boolean', 'compare equal', 'max', 'output']
-        self.arithmetic_categories = [''] #FILL IN LATER FOR NESTING 
+        self.operation_categories = ['variable declaration', 
+        'addition', 'difference', 'multiplication', 'division', 
+        'boolean', 'compare equal', 'max', 'output']
+        
+        self.arithmetic_categories = ['addition', 'difference', 'multiplication', 'division'] 
 
     def read_code(self):
         while not self.error and not self.end:
@@ -24,8 +30,8 @@ class Semantic:
         if args[0][1] in self.operation_categories:
             if args[0][1] == 'variable declaration':
                 self.var_dec(args)
-            if args[0][1] == 'addition':
-                self.sum(args)
+            if args[0][1] in self.arithmetic_categories:
+                print(self.arithmetic(args))
             if args[0][1] == 'boolean':
                 self.and_all(args)
             if args[0][1] == 'compare equal':
@@ -37,7 +43,6 @@ class Semantic:
         if args[0][1] == 'program end':
             self.end = True
 
-    #SYMBOL TABLE ONLY HAS VARIABLES IN IT NOW, NO IMPLEMENTATION FOR FUNCTIONS AND OTHERS YET
     def read_symbol_table(self, name):
         for symbol in self.symbol_table:
             if name == symbol[0]: #if match the identifier in symbol table
@@ -45,7 +50,8 @@ class Semantic:
         else:
             return False
 
-    def implicit_typecast(self, val, stype, etype): #start type, end type
+    def implicit_typecast(self, val, stype, etype): #start type, end type 
+        ###NOT YET DONE
         if stype == 'numbar':
             if etype == 'troof':
                 if val != 0:
@@ -106,16 +112,20 @@ class Semantic:
 #ADD NOOB CONSIDERATION
 
     #-----ARITHMETIC-----
-    #NESTING NOT YET IMPLEMENTED,
-    def sum(self, args):
-        #checking for numbar existence 
-        #(currently does not go back to convert previous numbrs if numbar is found after a numbr)
-        #maybe can look for numbar first before assigning values
-        numbar = False
+    def arithmetic(self, args):
 
-        # if args[1][1] in self.arithmetic_categories or args[3][1] in self.arithmetic_categories:
-            #do nesting magic
-        #else this down below
+        numbar = False
+        i = 3 #for nesting
+
+        #check for numbar
+        for arg in args:
+            if arg[1] == 'identifier':
+                symbol = self.read_symbol_table(arg[0])
+                if symbol[1] == 'numbar':
+                    numbar = True
+
+            if arg[1] == 'numbar':
+                numbar = True
 
         #1st value
         #if a variable, look it up in symbol table
@@ -124,7 +134,6 @@ class Semantic:
             if symbol:
                 if symbol[1] == 'numbar':
                     val1 = symbol[2]
-                    numbar = True
                 if symbol[1] == 'numbr':
                     if numbar:
                         val1 = self.implicit_typecast(symbol[2], 'numbr', 'numbar')
@@ -140,12 +149,25 @@ class Semantic:
                         val1 = self.implicit_typecast(symbol[2], 'yarn', 'numbar')
                     else:
                         val1 = int(symbol[2])
+                #NOOB
+                else:
+                    self.error = True
             else:
                 self.error = True
         #not a variable, raw value is in the args
+        elif args[1][1] in self.arithmetic_categories:
+            temp = []
+            temp.append(args[1])
+            temp.append(args[2])
+            temp.append(args[3])
+            temp.append(args[4])
+
+            if args[1][1] == 'addition':
+                val1 = self.arithmetic(temp)
+            
+            i += 3
         else:
             if args[1][1] == 'numbar':
-                numbar = True
                 val1 = float(args[1][0])
             if args[1][1] == 'numbr':
                 if numbar:
@@ -165,12 +187,11 @@ class Semantic:
 
         
         #2nd value
-        if args[3][1] == 'identifier':
-            symbol = self.read_symbol_table(args[3][0])
+        if args[i][1] == 'identifier':
+            symbol = self.read_symbol_table(args[i][0])
             if symbol:
                 if symbol[1] == 'numbar':
                     val2 = symbol[2]
-                    numbar = True
                 if symbol[1] == 'numbr':
                     if numbar:
                         val2 = self.implicit_typecast(symbol[2], 'numbr', 'numbar')
@@ -188,28 +209,43 @@ class Semantic:
                         val2 = int(symbol[2])
             else:
                 self.error = True
+
+        elif args[i][1] in self.arithmetic_categories:
+            temp = []
+            temp.append(args[i+1])
+            temp.append(args[i+2])
+            temp.append(args[i+3])
+            temp.append(args[i+4])
+
+            if args[i+1][1] == 'addition':
+                val2 = self.arithmetic(temp)
         else:
-            if args[3][1] == 'numbar':
-                numbar = True
-                val2 = float(args[3][0])
-            if args[3][1] == 'numbr':
+            if args[i][1] == 'numbar':
+                val2 = float(args[i][0])
+            if args[i][1] == 'numbr':
                 if numbar:
-                    val2 = self.implicit_typecast(args[3][0], 'numbr', 'numbar')
+                    val2 = self.implicit_typecast(args[i][0], 'numbr', 'numbar')
                 else:
-                    val2 = int(args[3][0])
-            if args[3][1] == 'troof':
+                    val2 = int(args[i][0])
+            if args[i][1] == 'troof':
                 if numbar:
-                    val2 = self.implicit_typecast(args[3][0], 'troof', 'numbar')
+                    val2 = self.implicit_typecast(args[i][0], 'troof', 'numbar')
                 else:
-                    val2 = int(args[3][0])
-            if args[3][1] == 'yarn':
+                    val2 = int(args[i][0])
+            if args[i][1] == 'yarn':
                 if numbar:
-                    val2 = self.implicit_typecast(args[3][0], 'yarn', 'numbar')
+                    val2 = self.implicit_typecast(args[i][0], 'yarn', 'numbar')
                 else:
-                    val2 = int(args[3][0])
-        
-        print(val1 + val2)
-        #print the result for now
+                    val2 = int(args[i][0])
+
+        if args[0][1] == 'addition':
+            return val1 + val2
+        elif args[0][1] == 'difference':
+            return val1 - val2
+        elif args[0][1] == 'multiplication':
+            return val1 * val2
+        elif args[0][1] == 'division':
+            return val1 / val2
 
     def max(self, args):
         pass
@@ -330,7 +366,7 @@ class Semantic:
                 if args[3][1] == 'yarn':
                     self.error = True
 
-            return print(val1 == val2)
+            print(val1 == val2)
 
         #is relational
         if len(args) == 8: #keyword identifier keyword keyword identifier keyword identifier linebreak
@@ -455,9 +491,11 @@ I HAS A x ITZ 3
 I HAS A y ITZ 2
 I HAS A z ITZ FAIL
 BUHBYE
+BTW COMMENT HERE
 SUM OF 5 AN 7 BTW MEOWMEOW MEOW = 12
+SUM OF SUM OF 5 AN 7 AN x
 ALL OF x AN y AN z MKAY = FALSE (true ^ true ^ false)
-BOTH SAEM x AN BIGGR OF x AN y = TRUE (3 > 2)
+BOTH SAEM x AN BIGGR OF x AN y = TRUE (3 >= 2)
 VISIBLE "HELLO WORLD" + "MEOW MEOW" = HELLO WORLDMEOW MEOW
 KTHXBYE
 '''
@@ -467,11 +505,14 @@ SAMPLE_CODE = [
 [['I HAS A', 'variable declaration'], ['x', 'identifier'], ['ITZ', 'variable initialization'], ['3', 'numbr'], ['\n', 'linebreak']], 
 [['I HAS A', 'variable declaration'], ['y', 'identifier'], ['ITZ', 'variable initialization'], ['2', 'numbr'], ['\n', 'linebreak']], 
 [['I HAS A', 'variable declaration'], ['z', 'identifier'], ['ITS', 'identifier'], ['FAIL', 'troof'], ['\n', 'linebreak']], 
+[['BTW .', 'comment'], ['\n', 'linebreak']],
 [['BUHBYE', 'variable declaration area end'], ['\n', 'linebreak']], 
 [['SUM OF', 'addition'], ['5', 'numbr'], ['AN', 'operand separator'], ['7', 'numbr'], ['BTW .', 'comment'], ['\n', 'linebreak']], 
+[['PRODUKT OF', 'multiplication'], ['SUM OF', 'addition'], ['5', 'numbr'], ['AN', 'operand separator'], ['7', 'numbr'], ['AN', 'operand separator'], ['x', 'identifier']],
 [['ALL OF', 'boolean'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['AN', 'operand separator'], ['z', 'identifier'], ['MKAY', 'end of operands'], ['\n', 'linebreak']], 
 [['BOTH SAEM', 'compare equal'], ['x', 'identifier'], ['AN', 'operand separator'], ['BIGGR OF', 'max'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
-[['VISIBLE', 'output'], ['"HELLO WORLD"', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['"MEOW MEOW"', 'yarn'], ['\n', 'linebreak']], 
+[['VISIBLE', 'output'], ['"HELLO WORLD"', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['"MEOW MEOW"', 'yarn'], ['\n', 'linebreak']],
+[['VISIBLE', 'output'], ['x', 'identifier'], ['\n', 'linebreak']],
 [['KTHXBYE', 'program end'], ['\n', 'linebreak']]
 ]
 
