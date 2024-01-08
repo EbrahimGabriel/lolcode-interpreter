@@ -25,7 +25,7 @@ class Semantic:
         'output']
         
         self.arithmetic_categories = ['addition', 'difference', 'multiplication', 'division', 'modulo', 'max', 'min'] 
-
+        self.comparison_categories = ['compare equal', 'compare diff']
     def read_code(self):
         while not self.error and not self.end:
             for line in self.tokens:
@@ -41,7 +41,7 @@ class Semantic:
                 self.arithmetic(args)
             if args[0][1] == 'boolean':
                 self.boolean(args)
-            if args[0][1] == 'compare equal':
+            if args[0][1] in self.comparison_categories:
                 self.comparison(args)
             if args[0][1] == 'output':
                 self.lol_print(args)
@@ -379,8 +379,11 @@ class Semantic:
    #-----COMPARISON-----
     #typecasts everthing into numbar, 2 = 2.0 and 3.5 = 3.5 so it shouldnt matter
     def comparison(self, args):
+        temp = args
+        if args[-1][1] == 'linebreak':
+            del temp[-1]
         # not relational, == or !=
-        if len(args) == 5: #keyword identifier keyword identifier linebreak
+        if len(temp) == 4: #keyword identifier keyword identifier
             #get values
             if args[1][1] == 'identifier':
                 symbol = self.read_symbol_table(args[1][0])
@@ -442,7 +445,7 @@ class Semantic:
                     return 'FAIL'
 
         #is relational
-        if len(args) == 8: #keyword identifier keyword keyword identifier keyword identifier linebreak
+        if len(temp) == 7: #keyword identifier keyword keyword identifier keyword identifier
             #the first 2 values should be the same
             if args[1][0] != args[4][0]:
                 self.error = True
@@ -550,6 +553,14 @@ class Semantic:
                     count += 1
                 count -= 1
                 values.append(self.implicit_typecast(self.arithmetic(temp), 'numbar', 'yarn'))
+            
+            elif args[count][1] in self.comparison_categories:
+                temp = []
+                while args[count][1] != 'concatenation operator (VISIBLE)' and args[count][1] != 'linebreak':
+                    temp.append(args[count])
+                    count += 1
+                count -= 1
+                values.append(self.implicit_typecast(self.comparison(temp), 'troof', 'yarn'))
 
             else: #raw value
                 if args[count][1] == 'numbar':
@@ -580,22 +591,8 @@ SAMPLE_CODE = [
     [['I HAS A', 'variable declaration'], ['x', 'identifier'], ['ITZ', 'variable initialization'], ['3', 'numbr'], ['\n', 'linebreak']], 
     [['I HAS A', 'variable declaration'], ['y', 'identifier'], ['ITZ', 'variable initialization'], ['4', 'numbr'], ['\n', 'linebreak']], 
     [['BUHBYE', 'variable declaration area end'], ['\n', 'linebreak']], 
-    [['VISIBLE', 'output'], ['x', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['"+"', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['y', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['" = "', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['SUM OF', 'addition'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
-    [['VISIBLE', 'output'], ['x', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['"-"', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['y', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['" = "', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['DIFF OF', 'difference'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
-    [['VISIBLE', 'output'], ['x', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['"*"', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['y', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['" = "', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['PRODUKT OF', 'multiplication'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
-    [['VISIBLE', 'output'], ['x', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['"/"', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['y', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['" = "', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['QUOSHUNT OF', 'division'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
-    [['VISIBLE', 'output'], ['x', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['"%"', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['y', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['" = "', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['MOD OF', 'modulo'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
-    [['VISIBLE', 'output'], ['"max("', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['x', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['","', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['y', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['") = "', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['BIGGR OF', 'max'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
-    [['VISIBLE', 'output'], ['"min("', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['x', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['","', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['y', 'identifier'], ['+', 'concatenation operator (VISIBLE)'], ['") = "', 'yarn'], ['+', 'concatenation operator (VISIBLE)'], ['SMALLR OF', 'min'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
-    [['BTW .', 'comment'], ['\n', 'linebreak']], 
-    [['VISIBLE', 'output'], ['SUM OF', 'addition'], ['PRODUKT OF', 'multiplication'], ['x', 'identifier'], ['AN', 'operand separator'], ['x', 'identifier'], ['AN', 'operand separator'], ['PRODUKT OF', 'multiplication'], ['y', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
-    [['BTW .', 'comment'], ['\n', 'linebreak']], 
-    [['VISIBLE', 'output'], ['PRODUKT OF', 'multiplication'], ['SUM OF', 'addition'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['AN', 'operand separator'], ['SUM OF', 'addition'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
-    [['BTW .', 'comment'], ['\n', 'linebreak']], 
-    [['VISIBLE', 'output'], ['DIFF OF', 'difference'], ['BIGGR OF', 'max'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['AN', 'operand separator'], ['SMALLR OF', 'min'], ['x', 'identifier'], ['AN', 'operand separator'], ['y', 'identifier'], ['\n', 'linebreak']], 
-    [['BTW .', 'comment'], ['\n', 'linebreak']], 
-    [['VISIBLE', 'output'], ['SUM OF', 'addition'], ['x', 'identifier'], ['AN', 'operand separator'], ['SUM OF', 'addition'], ['QUOSHUNT OF', 'division'], ['y', 'identifier'], ['AN', 'operand separator'], ['x', 'identifier'], ['AN', 'operand separator'], ['FAIL', 'troof'], ['\n', 'linebreak']], 
-    [['VISIBLE', 'output'], ['SUM OF', 'addition'], ['x', 'identifier'], ['AN', 'operand separator'], ['SUM OF', 'addition'], ['QUOSHUNT OF', 'division'], ['"17"', 'yarn'], ['AN', 'operand separator'], ['x', 'identifier'], ['AN', 'operand separator'], ['FAIL', 'troof'], ['\n', 'linebreak']], 
+    [['VISIBLE', 'output'], ['BOTH SAEM', 'compare equal'], ['x', 'identifier'], ['AN', 'noonecares'], ['y', 'identifier'], ['\n', 'linebreak']],
+    [['VISIBLE', 'output'], ['DIFFRINT', 'compare diff'], ['x', 'identifier'], ['AN', 'noonecares'], ['y', 'identifier'], ['\n', 'linebreak']],
     [['KTHXBYE', 'program end'], ['\n', 'linebreak']]
     ]
 
