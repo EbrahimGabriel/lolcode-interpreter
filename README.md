@@ -2,7 +2,7 @@
 
 Run project.py to start the GUI.
 
-Testcases
+Testcases  
 1 - O  
 2 - X  
 3 - O (edited)  
