@@ -2,6 +2,9 @@ import re
 
 '''
 NO GIMMEH
+NESTED ARITHMETIC ONLY READS OTHER ARITHMETIC EXPRESSIONS
+COMPARISON ONLY USES MAX/MIN AND DOES NOT NEST
+
 '''
 
 
@@ -19,12 +22,15 @@ class Semantic:
         #list of categories that have an operation associated with it
         self.operation_categories = [
         'variable declaration', 
-        'addition', 'difference', 'multiplication', 'division', 'modulo', 'max', 'min'
-        'boolean', 'compare equal', 
+        'addition', 'difference', 'multiplication', 'division', 'modulo', 'max', 'min',
+        'booland', 'boolor', 'boolxor', 'boolnot', 'boolalland', 'boolallor',
+        'compare equal', 'compare diff',
         'output']
         
         self.arithmetic_categories = ['addition', 'difference', 'multiplication', 'division', 'modulo', 'max', 'min'] 
         self.comparison_categories = ['compare equal', 'compare diff']
+        self.boolean_categories = ['booland', 'boolor', 'boolxor', 'boolnot', 'boolalland', 'boolallor']
+
     def read_code(self):
         while not self.error and not self.end:
             for line in self.tokens:
@@ -39,7 +45,7 @@ class Semantic:
             if args[0][1] in self.arithmetic_categories:
                 self.arithmetic(args)
             if args[0][1] == 'boolean':
-                self.boolean(args)
+                self.boolean(args, False)
             if args[0][1] in self.comparison_categories:
                 self.comparison(args)
             if args[0][1] == 'output':
@@ -115,7 +121,7 @@ class Semantic:
             else: #no typecasting to other types
                 self.error = True
 
-    #-----VAR DECLARATION-----
+    #-----VARIABLE STUFF-----
     def var_dec(self, args):
         if len(args) == 3: #keyword, identifier, linebreak
             temp = [args[1][0], 'NOOB']
@@ -148,11 +154,24 @@ class Semantic:
 
                 temp = [args[1][0], temp2, val]
                 self.symbol_table.append(temp)
+            
+            if args[3][1] in self.comparison_categories:
+                temp = []
+                count = 3
+                while args[count][1] != 'linebreak':
+                    temp.append(args[count])
+                    count += 1
+                
+                val = self.comparison(temp)
 
+                temp = [args[1][0], 'troof', val]
+                self.symbol_table.append(temp)
+
+    def var_assign(self, args):
+        pass
     #-------------------------
 
     #-----ARITHMETIC-----
-    #NOT INFINITE ARITY! BUT CAN NEST INFINITELY(?)
     def arithmetic(self, args):
 
         numbar = False
@@ -330,49 +349,146 @@ class Semantic:
     #--------------------
 
     #-----BOOLEAN-----
-    #NO CONSIDERATION FOR OTHER EXPRESSIONS WITHIN YET
-    def boolean(self, args):
-        count = 0
+    def boolean(self, args, nest):
         values = []
-        #iterate through all operands and append to values list
-        while args[count][1] != 'end of operands':
-            if args[count][1] == 'identifier':
-                symbol = self.read_symbol_table(args[count][0])
-                if symbol:
-                    if symbol[1] == 'numbar':
-                        values.append(self.implicit_typecast(symbol[2], 'numbar', 'troof'))
-                    if symbol[1] == 'numbr':
-                        values.append(self.implicit_typecast(symbol[2], 'numbr', 'troof'))
-                    if symbol[1] == 'troof':
-                        if symbol[2] == 'WIN':
-                            values.append(True)
-                        else:
-                            values.append(False) 
-                    if symbol[1] == 'yarn':
-                        values.append(self.implicit_typecast(symbol[2], 'yarn', 'troof'))
-                else:
-                    self.error = True
-            else:
-                if args[count][1] == 'numbar':
-                    values.append(self.implicit_typecast(args[count][0], 'numbar', 'troof'))
-                if args[count][1] == 'numbr':
-                    values.append(self.implicit_typecast(args[count][0], 'numbr', 'troof'))
-                if args[count][1] == 'troof':
-                    if args[count][0] == 'WIN':
-                        values.append(True)
+        #infinite arity
+        if not nest and (args[0][1] == 'boolalland' or args[0][1] == 'boolallor'):
+            count = 0
+            #iterate through all operands and append to values list
+            while args[count][1] != 'end of operands':
+                if args[count][1] == 'identifier':
+                    symbol = self.read_symbol_table(args[count][0])
+                    if symbol:
+                        if symbol[1] == 'numbar':
+                            values.append(self.implicit_typecast(symbol[2], 'numbar', 'troof'))
+                        if symbol[1] == 'numbr':
+                            values.append(self.implicit_typecast(symbol[2], 'numbr', 'troof'))
+                        if symbol[1] == 'troof':
+                            values.append(symbol[2]) 
+                        if symbol[1] == 'yarn':
+                            values.append(self.implicit_typecast(symbol[2], 'yarn', 'troof'))
                     else:
-                        values.append(False) 
-                if args[count][1] == 'yarn':
-                    values.append(self.implicit_typecast(args[count][0], 'yarn', 'troof'))
-            count += 1
+                        self.error = True
 
-        result = values[0]
-        #use and comparison for all values
+                elif args[count][1] in self.boolean_categories: #BOOLEAN NESTING
+                    temp = []
+                    j = count+1
+                    count2 = 0 #count how many values we've encountered
+                    #deeper nesting!
+                    if args[j][1] in self.boolean_categories:
+                        if args[j][1] == 'boolnot':
+                            limit = 1
+                        else:
+                            limit = 2
+                        while count2 < limit:
+                            if args[j][1] in self.boolean_categories:
+                                if args[j][1] != 'boolnot':
+                                    count2 -= 1
+                            if args[j][1] == 'identifier' or args[j][1] == 'numbar' or args[j][1] == 'numbr' or args[j][1] == 'troof' or args[j][1] == 'yarn':
+                                count2 += 1
+                            temp.append(args[j])
+                            j += 1
+                        values.append(self.boolean(temp, True))
+                    
+                    else:
+                        if args[count][1] == 'boolnot':
+                            temp.append(args[count])
+                            temp.append(args[count+1])
+                        else:
+                            temp.append(args[count])
+                            temp.append(args[count+1])
+                            temp.append(args[count+2])
+                            temp.append(args[count+3])
+
+                        values.append(self.boolean(temp, True))
+                
+                else:
+                    if args[count][1] == 'numbar':
+                        values.append(self.implicit_typecast(args[count][0], 'numbar', 'troof'))
+                    if args[count][1] == 'numbr':
+                        values.append(self.implicit_typecast(args[count][0], 'numbr', 'troof'))
+                    if args[count][1] == 'troof':
+                        values.append(args[count][0])
+                    if args[count][1] == 'yarn':
+                        values.append(self.implicit_typecast(args[count][0], 'yarn', 'troof'))
+                count += 1
+
+        #usual
+        if args[1][1] == 'identifier':
+            symbol = self.read_symbol_table(args[1][0])
+            if symbol:
+                if symbol[1] == 'numbar':
+                    values.append(self.implicit_typecast(symbol[2], 'numbar', 'troof'))
+                if symbol[1] == 'numbr':
+                    values.append(self.implicit_typecast(symbol[2], 'numbr', 'troof'))
+                if symbol[1] == 'troof':
+                    values.append(symbol[2]) 
+                if symbol[1] == 'yarn':
+                    values.append(self.implicit_typecast(symbol[2], 'yarn', 'troof'))
+            else:
+                self.error = True
+
+        elif args[1][1] in self.boolean_categories: #BOOLEAN NESTING
+            temp = []
+            j = 2
+            count2 = 0 #count how many values we've encountered
+            #deeper nesting!
+            if args[j][1] in self.boolean_categories:
+                if args[j][1] == 'boolnot':
+                    limit = 1
+                else:
+                    limit = 2
+                while count2 < limit:
+                    if args[j][1] in self.boolean_categories:
+                        if args[j][1] != 'boolnot':
+                            count2 -= 1
+                    if args[j][1] == 'identifier' or args[j][1] == 'numbar' or args[j][1] == 'numbr' or args[j][1] == 'troof' or args[j][1] == 'yarn':
+                        count2 += 1
+                    temp.append(args[j])
+                    j += 1
+                values.append(self.boolean(temp, True))
+            
+            else:
+                temp.append(args[1])
+                temp.append(args[2])
+                temp.append(args[3])
+                temp.append(args[4])
+
+                values.append(self.boolean(temp, True))
+            
+        else:
+            if args[1][1] == 'numbar':
+                values.append(self.implicit_typecast(args[count][0], 'numbar', 'troof'))
+            if args[1][1] == 'numbr':
+                values.append(self.implicit_typecast(args[count][0], 'numbr', 'troof'))
+            if args[1][1] == 'troof':
+                values.append(args[count][0])
+            if args[1][1] == 'yarn':
+                values.append(self.implicit_typecast(args[count][0], 'yarn', 'troof'))
+        
+        if values[0] == 'WIN':
+            result = True
+        else:
+            result = False
+
         for value in values:
-            result = result and value
-        print(result)
+            if value == 'WIN':
+                temp = True
+            else:
+                temp = False
 
-
+            if args[0][1] == 'boolalland' or args[0][1] == 'booland':
+                result = result and temp
+            elif args[0][1] == 'boolallor' or args[0][1] == 'boolor':
+                result = result or temp
+            elif args[0][1] == 'boolxor':
+                result = result ^ temp
+            elif args[0][1] == 'boolnot':
+                result = not temp
+        if result:
+            return 'WIN'
+        else:
+            return 'FAIL'
    #-----------------
 
    #-----COMPARISON-----
@@ -577,14 +693,22 @@ class Semantic:
                     count += 1
                 count -= 1
                 values.append(self.implicit_typecast(self.comparison(temp), 'troof', 'yarn'))
-
+            
+            elif args[count][1] in self.boolean_categories:
+                temp = []
+                while args[count][1] != 'concatenation operator (VISIBLE)' and args[count][1] != 'linebreak':
+                    temp.append(args[count])
+                    count += 1
+                count -= 1
+                values.append(self.implicit_typecast(self.boolean(temp, False), 'troof', 'yarn'))
+            
             else: #raw value
                 if args[count][1] == 'numbar':
                     values.append(self.implicit_typecast(args[count][0], 'numbar', 'yarn'))
                 if args[count][1] == 'numbr':
                     values.append(self.implicit_typecast(args[count][0], 'numbr', 'yarn'))
                 if args[count][1] == 'troof':
-                    values.append(args[count][0])
+                    values.append(self.implicit_typecast(args[count][0], 'troof', 'yarn'))
                 if args[count][1] == 'yarn':
                     values.append(args[count][0])
             count += 1
@@ -595,7 +719,7 @@ class Semantic:
             string = string + temp 
         string = "\"" + string + "\""
         self.toprint.append(string)
-        # print(string)
+        print(string)
     #----------------
 
 SAMPLE_CODE = [

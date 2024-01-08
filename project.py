@@ -200,7 +200,12 @@ class LOLCODE_Interpreter(tk.Tk):
         self.min = r'^SMALLR OF$'
         self.opsep = r'^AN$'
         self.concat = r'^SMOOSH$'
-        self.boolean = r'^(BOTH OF|EITHER OF|WON OF|NOT|ALL OF|ANY OF)$' 
+        self.booland = r'^BOTH OF$'
+        self.boolor = r'^EITHER OF$'
+        self.boolxor = r'^WON OF$'
+        self.boolnot = r'^NOT$'
+        self.boolalland = r'^ALL OF$'
+        self.boolallor = r'^ANY OF$'
         self.endlist = r'^MKAY$'
         self.compareequal = r'^BOTH SAEM$'
         self.comparediff = r'^DIFFRINT$'
@@ -295,7 +300,7 @@ class LOLCODE_Interpreter(tk.Tk):
                 self.lexemes.append(lexeme)
                 temp.append(lexeme)
             self.lines.append(temp)
-                
+
         self.display_lexemes()
         
 
@@ -436,8 +441,18 @@ class LOLCODE_Interpreter(tk.Tk):
             category = 'operand separator'
         if re.search(self.concat, token) != None:
             category = 'concatenation'
-        if re.search(self.boolean, token) != None:
-            category = 'boolean'
+        if re.search(self.booland, token) != None:
+            category = 'booland'
+        if re.search(self.boolor, token) != None:
+            category = 'boolor'
+        if re.search(self.boolxor, token) != None:
+            category = 'boolxor'
+        if re.search(self.boolnot, token) != None:
+            category = 'boolnot'
+        if re.search(self.boolalland, token) != None:
+            category = 'boolalland'
+        if re.search(self.boolallor, token) != None:
+            category = 'boolallor'
         if re.search(self.endlist, token) != None:
             category = 'end of operands'
         if re.search(self.compareequal, token) != None:
