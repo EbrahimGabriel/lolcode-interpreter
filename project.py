@@ -220,8 +220,8 @@ class LOLCODE_Interpreter(tk.Tk):
         self.funccall = r'^I IZ$'
         self.linebreak = r'^\n$'
 
-        self.singlecomments = r'BTW .*'
-        self.multicommentstart = r'OBTW .*'
+        self.singlecomments = r'BTW.*'
+        self.multicommentstart = r'OBTW.*'
         self.multicommentend = r'TLDR'
 
         # used in tokenizing
@@ -263,10 +263,22 @@ class LOLCODE_Interpreter(tk.Tk):
         self.code = [line for line in self.code if line != '']
         # tokenize each line then identify lexemes
         self.lexemes = []
+
+        multicomment = False
         for line in self.code:
             line2 = line.lstrip()
             if line2 == '':
                 continue
+            
+            if multicomment:
+                if re.search(self.multicommentend, line2):
+                    multicomment = False
+                continue
+
+            if re.search(self.multicommentstart, line2):
+                multicomment = True
+                continue
+
             tokens = self.tokenize_line(line2)
             temp = []
             for token in tokens:
@@ -283,10 +295,10 @@ class LOLCODE_Interpreter(tk.Tk):
         s = semantic.Semantic(self.lines)
         s.read_code()
         # s.symbol_table <- contains symbol table (list of lists)
-        print(s.symbol_table)
+        # print(s.symbol_table)
         self.display_symboltable(s.symbol_table)
         # s.toprint <- contains lines to be printed
-        print(s.toprint)
+        # print(s.toprint)
         #-----------------
 
         # print(self.lines)

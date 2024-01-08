@@ -2,7 +2,6 @@ import re
 
 '''
 NO GIMMEH
-ARITHMETIC NOT INFINITE ARITY
 '''
 
 
@@ -445,11 +444,7 @@ class Semantic:
                     return 'FAIL'
 
         #is relational
-        if len(temp) == 7: #keyword identifier keyword keyword identifier keyword identifier
-            #the first 2 values should be the same
-            if args[1][0] != args[4][0]:
-                self.error = True
-
+        else: #keyword identifier keyword keyword identifier keyword identifier
             if args[1][1] == 'identifier':
                 symbol = self.read_symbol_table(args[1][0])
                 if symbol:
@@ -464,6 +459,16 @@ class Semantic:
                         self.error = True
                 else:
                     self.error = True
+
+            elif args[1][1] in self.arithmetic_categories:
+                temp = []
+                temp.append(args[1])
+                temp.append(args[2])
+                temp.append(args[3])
+                temp.append(args[4])
+
+                val1 = self.arithmetic(temp)
+
             else:
                 if args[1][1] == 'numbar':
                     val1 = float(args[1][0])
@@ -474,6 +479,7 @@ class Semantic:
                 if args[1][1] == 'yarn':
                     self.error = True
             
+            #val 2
             if args[6][1] == 'identifier':
                 symbol = self.read_symbol_table(args[6][0])
                 if symbol:
@@ -488,6 +494,16 @@ class Semantic:
                         self.error = True
                 else:
                     self.error = True
+            
+            elif args[3][1] in self.arithmetic_categories:
+                temp = []
+                temp.append(args[3])
+                temp.append(args[4])
+                temp.append(args[5])
+                temp.append(args[6])
+
+                val2 = self.arithmetic(temp)
+
             else:
                 if args[6][1] == 'numbar':
                     val2 = float(args[6][0])
@@ -500,7 +516,7 @@ class Semantic:
             
             #check if biggr of or smallr of and return proper expression
             if args[0][1] == 'compare equal':
-                if args[3][1] == 'max':
+                if args[3][1] == 'max' or args[1][1] == 'max':
                     if val1 >= val2:
                         return 'WIN'
                     else:
@@ -511,7 +527,7 @@ class Semantic:
                     else:
                         return 'FAIL'
             else:
-                if args[3][1] == 'max':
+                if args[3][1] == 'max' or args[1][1] == 'max':
                     if val1 > val2:
                         return 'WIN'
                     else:
@@ -574,27 +590,28 @@ class Semantic:
             count += 1
         
         string = ''
-        # print(values)
         for value in values:
-            # print(value)
             temp = value[1:-1]
-            # print(temp)
             string = string + temp 
         string = "\"" + string + "\""
         self.toprint.append(string)
-        # print(string)
+        print(string)
     #----------------
 
 SAMPLE_CODE = [
     [['HAI', 'program start'], ['\n', 'linebreak']], [['WAZZUP', 'variable declaration area start'], ['\n', 'linebreak']], 
     [['BTW .', 'comment'], ['\n', 'linebreak']], 
-    [['I HAS A', 'variable declaration'], ['x', 'identifier'], ['ITZ', 'variable initialization'], ['3', 'numbr'], ['\n', 'linebreak']], 
+    [['I HAS A', 'variable declaration'], ['x', 'identifier'], ['ITZ', 'variable initialization'], ['4', 'numbr'], ['\n', 'linebreak']], 
     [['I HAS A', 'variable declaration'], ['y', 'identifier'], ['ITZ', 'variable initialization'], ['4', 'numbr'], ['\n', 'linebreak']], 
     [['BUHBYE', 'variable declaration area end'], ['\n', 'linebreak']], 
     [['VISIBLE', 'output'], ['BOTH SAEM', 'compare equal'], ['x', 'identifier'], ['AN', 'noonecares'], ['y', 'identifier'], ['\n', 'linebreak']],
     [['VISIBLE', 'output'], ['DIFFRINT', 'compare diff'], ['x', 'identifier'], ['AN', 'noonecares'], ['y', 'identifier'], ['\n', 'linebreak']],
+    [['VISIBLE', 'output'], ['BOTH SAEM', 'compare equal'], ['x', 'identifier'], ['AN', 'noonecares'], ['BIGGR OF', 'max'], ['x', 'identifier'], ['AN', 'asdasd'], ['y', 'identifier'], ['\n', 'linebreak']],
+    [['VISIBLE', 'output'], ['BOTH SAEM', 'compare equal'], ['x', 'identifier'], ['AN', 'noonecares'], ['SMALLR OF', 'min'], ['x', 'identifier'], ['AN', 'asdasd'], ['y', 'identifier'], ['\n', 'linebreak']],
+    [['VISIBLE', 'output'], ['DIFFRINT', 'compare diff'], ['x', 'identifier'], ['AN', 'noonecares'], ['BIGGR OF', 'max'], ['x', 'identifier'], ['AN', 'asdasd'], ['y', 'identifier'], ['\n', 'linebreak']],
+    [['VISIBLE', 'output'], ['DIFFRINT', 'compare diff'], ['x', 'identifier'], ['AN', 'noonecares'], ['SMALLR OF', 'min'], ['x', 'identifier'], ['AN', 'asdasd'], ['y', 'identifier'], ['\n', 'linebreak']],
     [['KTHXBYE', 'program end'], ['\n', 'linebreak']]
     ]
 
-s = Semantic(SAMPLE_CODE)
-s.read_code()
+# s = Semantic(SAMPLE_CODE)
+# s.read_code()
