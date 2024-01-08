@@ -5,7 +5,6 @@ import math
 NO GIMMEH
 NESTED ARITHMETIC ONLY READS OTHER ARITHMETIC EXPRESSIONS
 COMPARISON ONLY USES MAX/MIN AND DOES NOT NEST
-BOOLEAN NESTING NOT WORKING
 
 '''
 
@@ -32,7 +31,8 @@ class Semantic:
         
         self.arithmetic_categories = ['addition', 'difference', 'multiplication', 'division', 'modulo', 'max', 'min'] 
         self.comparison_categories = ['compare equal', 'compare diff']
-        self.boolean_categories = ['booland', 'boolor', 'boolxor', 'boolnot', 'boolalland', 'boolallor']
+        self.boolean_categories = ['booland', 'boolor', 'boolxor', 'boolnot']
+        self.boolean_infinite = ['boolalland', 'boolallor']
 
     def read_code(self):
         while not self.error and not self.end:
@@ -75,27 +75,29 @@ class Semantic:
     def implicit_typecast(self, val, stype, etype): #start type, end type 
         ### NOT YET DONE
         if stype == 'numbar':
+            temp = float(val)
             if etype == 'numbr':
-                return int(val)
+                return int(temp)
 
             if etype == 'troof':
-                if val != 0:
+                if temp != 0:
                     return 'WIN'
                 else:
                     return 'FAIL'
             if etype == 'yarn':
-                return "\"" + str(val) + "\""
+                return "\"" + str(temp) + "\""
     
         if stype == 'numbr':
+            temp = int(val)
             if etype == 'numbar':
-                return float(val)
+                return float(temp)
             if etype == 'troof':
-                if val != 0:
+                if temp != 0:
                     return 'WIN'
                 else:
                     return 'FAIL'
             if etype == 'yarn':
-                return "\"" + str(val) + "\""
+                return "\"" + str(temp) + "\""
         
         if stype == 'troof':
             if etype == 'numbar':
@@ -179,7 +181,7 @@ class Semantic:
                 temp = [args[1][0], 'troof', val]
                 self.symbol_table.append(temp)
             
-            if args[3][1] in self.boolean_categories:
+            if args[3][1] in self.boolean_categories or args[count][1] in self.boolean_infinite:
                 temp = []
                 count = 3
                 while args[count][1] != 'linebreak':
@@ -234,7 +236,7 @@ class Semantic:
 
                 temp = [args[0][0], 'troof', val]
             
-            if args[2][1] in self.boolean_categories:
+            if args[2][1] in self.boolean_categories or args[count][1] in self.boolean_infinite:
                 count = 2
                 while args[count][1] != 'linebreak':
                     temp.append(args[count])
@@ -289,7 +291,6 @@ class Semantic:
 
     #-----ARITHMETIC-----
     def arithmetic(self, args):
-
         numbar = False
         i = 3 #for nesting
 
@@ -469,7 +470,7 @@ class Semantic:
         values = []
         #infinite arity
         if not nest and (args[0][1] == 'boolalland' or args[0][1] == 'boolallor'):
-            count = 0
+            count = 1
             #iterate through all operands and append to values list
             while args[count][1] != 'end of operands':
                 if args[count][1] == 'identifier':
@@ -485,17 +486,17 @@ class Semantic:
                             values.append(self.implicit_typecast(symbol[2], 'yarn', 'troof'))
                     else:
                         self.error = True
-
-                elif args[count][1] in self.boolean_categories: #BOOLEAN NESTING
+                
+                elif args[count][1] in self.boolean_categories:
                     temp = []
-                    j = count+1
-                    count2 = 0 #count how many values we've encountered
-                    #deeper nesting!
+                    j = count+1 #1+1
+                    count2 = 0
+
                     if args[j][1] in self.boolean_categories:
-                        if args[j][1] == 'boolnot':
-                            limit = 1
-                        else:
-                            limit = 2
+                        # if args[j][1] == 'boolnot':
+                        #     limit = 1
+                        # else:
+                        limit = 2
                         while count2 < limit:
                             if args[j][1] in self.boolean_categories:
                                 if args[j][1] != 'boolnot':
@@ -504,20 +505,25 @@ class Semantic:
                                 count2 += 1
                             temp.append(args[j])
                             j += 1
-                        values.append(self.boolean(temp, True))
+                            count += 1
+                        count += 1
+                        values.append(self.boolean(temp, nest))
                     
                     else:
                         if args[count][1] == 'boolnot':
                             temp.append(args[count])
                             temp.append(args[count+1])
+                            count += 1
                         else:
                             temp.append(args[count])
                             temp.append(args[count+1])
                             temp.append(args[count+2])
                             temp.append(args[count+3])
 
-                        values.append(self.boolean(temp, True))
-                
+                            count += 3
+
+                        values.append(self.boolean(temp, nest))
+
                 else:
                     if args[count][1] == 'numbar':
                         values.append(self.implicit_typecast(args[count][0], 'numbar', 'troof'))
@@ -545,16 +551,16 @@ class Semantic:
             else:
                 self.error = True
 
-        elif args[1][1] in self.boolean_categories: #BOOLEAN NESTING
+        elif args[1][1] in self.boolean_categories:
             temp = []
-            j = 2
-            count2 = 0 #count how many values we've encountered
-            #deeper nesting!
+            j = 2 #1+1
+            count2 = 0
+
             if args[j][1] in self.boolean_categories:
-                if args[j][1] == 'boolnot':
-                    limit = 1
-                else:
-                    limit = 2
+                # if args[j][1] == 'boolnot':
+                #     limit = 1
+                # else:
+                limit = 2
                 while count2 < limit:
                     if args[j][1] in self.boolean_categories:
                         if args[j][1] != 'boolnot':
@@ -564,21 +570,23 @@ class Semantic:
                     temp.append(args[j])
                     j += 1
                     i += 1
-                values.append(self.boolean(temp, True))
+                i += 1
+                values.append(self.boolean(temp, nest))
             
             else:
-                if args[0][1] == 'boolnot':
-                    temp.append(args[1])
-                    temp.append(args[2])
-                    i += 1
+                if args[i][1] == 'boolnot':
+                    temp.append(args[i])
+                    temp.append(args[i+1])
+                    count += 1
                 else:
-                    temp.append(args[1])
-                    temp.append(args[2])
-                    temp.append(args[3])
-                    temp.append(args[4])
+                    temp.append(args[i])
+                    temp.append(args[i+1])
+                    temp.append(args[i+2])
+                    temp.append(args[i+3])
+
                     i += 3
 
-                values.append(self.boolean(temp, True))
+                    values.append(self.boolean(temp, nest))
             
         else:
             if args[1][1] == 'numbar':
@@ -593,7 +601,7 @@ class Semantic:
         #val2
         if args[0][1] != 'boolnot':
             if args[i][1] == 'identifier':
-                symbol = self.read_symbol_table(args[1][0])
+                symbol = self.read_symbol_table(args[i][0])
                 if symbol:
                     if symbol[1] == 'numbar':
                         values.append(self.implicit_typecast(symbol[2], 'numbar', 'troof'))
@@ -605,38 +613,39 @@ class Semantic:
                         values.append(self.implicit_typecast(symbol[2], 'yarn', 'troof'))
                 else:
                     self.error = True
-
-            elif args[i][1] in self.boolean_categories: #BOOLEAN NESTING
+            
+            elif args[i][1] in self.boolean_categories:
                 temp = []
-                j = i+1
-                count2 = 0 #count how many values we've encountered
-                #deeper nesting!
+                j = i+1 
+                count2 = 0
+
                 if args[j][1] in self.boolean_categories:
-                    if args[j][1] == 'boolnot':
-                        limit = 1
-                    else:
-                        limit = 2
+                    # if args[j][1] == 'boolnot':
+                    #     limit = 1
+                    # else:
+                    limit = 2
                     while count2 < limit:
                         if args[j][1] in self.boolean_categories:
                             if args[j][1] != 'boolnot':
-                                count2 -= 1
+                                count2 -= 1 
                         if args[j][1] == 'identifier' or args[j][1] == 'numbar' or args[j][1] == 'numbr' or args[j][1] == 'troof' or args[j][1] == 'yarn':
                             count2 += 1
                         temp.append(args[j])
                         j += 1
-                    values.append(self.boolean(temp, True))
+                    values.append(self.boolean(temp, nest))
                 
                 else:
-                    if args[i-1][1] == 'boolnot':
+                    if args[i][1] == 'boolnot':
                         temp.append(args[i])
                         temp.append(args[i+1])
+
                     else:
                         temp.append(args[i])
                         temp.append(args[i+1])
                         temp.append(args[i+2])
                         temp.append(args[i+3])
 
-                    values.append(self.boolean(temp, True))
+                    values.append(self.boolean(temp, nest))
                 
             else:
                 if args[i][1] == 'numbar':
@@ -654,20 +663,21 @@ class Semantic:
         else:
             result = False
 
-        for value in values:
-            if value == 'WIN':
-                temp = True
-            else:
-                temp = False
+        if args[0][1] != 'boolnot':
+            for i in range(1, len(values)):
+                if values[i] == 'WIN':
+                    temp = True
+                else:
+                    temp = False
 
-            if args[0][1] == 'boolalland' or args[0][1] == 'booland':
-                result = result and temp
-            elif args[0][1] == 'boolallor' or args[0][1] == 'boolor':
-                result = result or temp
-            elif args[0][1] == 'boolxor':
-                result = result ^ temp
-            elif args[0][1] == 'boolnot':
-                result = not temp
+                if args[0][1] == 'boolalland' or args[0][1] == 'booland':
+                    result = result and temp
+                elif args[0][1] == 'boolallor' or args[0][1] == 'boolor':
+                    result = result or temp
+                elif args[0][1] == 'boolxor':
+                    result = (result and not temp) or (not result and temp)
+        else:
+            result = not values[0]
 
         if result:
             return 'WIN'
@@ -878,7 +888,7 @@ class Semantic:
                 count -= 1
                 values.append(self.implicit_typecast(self.comparison(temp), 'troof', 'yarn'))
             
-            elif args[count][1] in self.boolean_categories:
+            elif args[count][1] in self.boolean_categories or args[count][1] in self.boolean_infinite:
                 temp = []
                 while args[count][1] != 'operand separator' and args[count][1] != 'linebreak':
                     temp.append(args[count])
@@ -930,12 +940,25 @@ class Semantic:
                     self.error = True
 
             elif args[count][1] in self.arithmetic_categories:
+                numbar = False
+                for arg in args:
+                    if arg[1] == 'identifier':
+                        symbol = self.read_symbol_table(arg[0])
+                        if symbol[1] == 'numbar':
+                            numbar = True
+
+                    if arg[1] == 'numbar':
+                        numbar = True
+
                 temp = []
                 while args[count][1] != 'concatenation operator (VISIBLE)' and args[count][1] != 'linebreak':
                     temp.append(args[count])
                     count += 1
                 count -= 1
-                values.append(self.implicit_typecast(self.arithmetic(temp), 'numbar', 'yarn'))
+                if numbar:
+                    values.append(self.implicit_typecast(self.arithmetic(temp), 'numbar', 'yarn'))
+                else:
+                    values.append(self.implicit_typecast(self.arithmetic(temp), 'numbr', 'yarn'))
             
             elif args[count][1] in self.comparison_categories:
                 temp = []
@@ -945,7 +968,7 @@ class Semantic:
                 count -= 1
                 values.append(self.implicit_typecast(self.comparison(temp), 'troof', 'yarn'))
             
-            elif args[count][1] in self.boolean_categories:
+            elif args[count][1] in self.boolean_categories or args[count][1] in self.boolean_infinite:
                 temp = []
                 while args[count][1] != 'concatenation operator (VISIBLE)' and args[count][1] != 'linebreak':
                     temp.append(args[count])

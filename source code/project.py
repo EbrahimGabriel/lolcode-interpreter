@@ -175,10 +175,9 @@ class LOLCODE_Interpreter(tk.Tk):
 
         # regexes to consider
         # categorized
-        ###CHANGE THE MULTIPLE x | y | z TO ONE LINE EACH
         self.identifiers = r'^([a-zA-Z][a-zA-Z0-9_]*)$'
-        self.numbr = r'^((-?[1-9][0-9]*)|(0))$'
-        self.numbar = r'^((-?[1-9][0-9]*\.[0.9]+)|(-?[0\.[0.9]+))$'
+        self.numbr = r'^(-?[1-9][0-9]*|0)$'
+        self.numbar = r'^(-?[1-9][0-9]*\.[0.9]+|-?[0\.[0-9]+)$'
         self.yarn = r'^"[^"]*"$'
         self.troof = r'^(WIN|FAIL)$'
         self.datatype = r'^(NOOB|NUMBA?R|YARN|TROOF)$'
@@ -413,10 +412,10 @@ class LOLCODE_Interpreter(tk.Tk):
     def identify_token(self, token):
         if re.search(self.identifiers, token) != None:
             category = 'identifier'
-        if re.search(self.numbr, token) != None:
-            category = 'numbr'
         if re.search(self.numbar, token) != None:
             category = 'numbar'
+        if re.search(self.numbr, token) != None:
+            category = 'numbr'
         if re.search(self.yarn, token) != None:
             category = 'yarn'
         if re.search(self.troof, token) != None:
