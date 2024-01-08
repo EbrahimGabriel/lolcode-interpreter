@@ -260,9 +260,14 @@ class LOLCODE_Interpreter(tk.Tk):
             self.lines.append(temp)
                 
         self.display_lexemes()
-        print(self.lines)
+
+        #-----------------
+        #move this somewhere as long as it does these things properly
         s = semantic.Semantic(self.lines)
         s.read_code()
+        # s.toprint <- contains lines to be printed
+        #-----------------
+
         # print(self.lines)
         # Print lexeme array containing sub-arrays of token and category
         # self.lexemes = ['token', 'category'],...
