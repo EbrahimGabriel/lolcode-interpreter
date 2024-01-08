@@ -5,7 +5,7 @@ import math
 NO GIMMEH
 NESTED ARITHMETIC ONLY READS OTHER ARITHMETIC EXPRESSIONS
 COMPARISON ONLY USES MAX/MIN AND DOES NOT NEST
-
+NESTING INFINITE ARITY BOOLEAN AT 2ND OPERAND FAILS
 '''
 
 
@@ -468,11 +468,12 @@ class Semantic:
     #-----BOOLEAN-----
     def boolean(self, args, nest):
         values = []
+        print(args)
         #infinite arity
         if not nest and (args[0][1] == 'boolalland' or args[0][1] == 'boolallor'):
             count = 1
             #iterate through all operands and append to values list
-            while args[count][1] != 'end of operands':
+            while args[count-1][1] != 'end of operands':
                 if args[count][1] == 'identifier':
                     symbol = self.read_symbol_table(args[count][0])
                     if symbol:
@@ -533,7 +534,7 @@ class Semantic:
                         values.append(args[count][0])
                     if args[count][1] == 'yarn':
                         values.append(self.implicit_typecast(args[count][0], 'yarn', 'troof'))
-                count += 1
+                count += 2
 
         #usual, val1
         i = 3
@@ -574,15 +575,15 @@ class Semantic:
                 values.append(self.boolean(temp, nest))
             
             else:
-                if args[i][1] == 'boolnot':
-                    temp.append(args[i])
-                    temp.append(args[i+1])
+                if args[1][1] == 'boolnot':
+                    temp.append(args[1])
+                    temp.append(args[2])
                     count += 1
                 else:
-                    temp.append(args[i])
-                    temp.append(args[i+1])
-                    temp.append(args[i+2])
-                    temp.append(args[i+3])
+                    temp.append(args[1])
+                    temp.append(args[2])
+                    temp.append(args[3])
+                    temp.append(args[4])
 
                     i += 3
 
