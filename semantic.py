@@ -13,6 +13,7 @@ class Semantic:
         self.condition_block = [] #CONTAINS IF-ELSE STATEMENTS
         self.loop_block = [] #CONTAINS LOOP STATEMENTS
         self.function_block = [] #CONTAINS FUNCTION STATEMENTS
+        self.toprint = []
         self.error = False
         self.end = False
 
@@ -345,11 +346,8 @@ class Semantic:
    #-----------------
 
    #-----COMPARISON-----
-    #covers >= <= and ==
-    #ONLY ASSUMES VALUES ARE NUMBR/NUMBAR, NO TROOF or YARN
     #typecasts everthing into numbar, 2 = 2.0 and 3.5 = 3.5 so it shouldnt matter
     def comparison(self, args):
-        numbar = False
         # not relational, == or !=
         if len(args) == 5: #keyword identifier keyword identifier linebreak
             #get values
@@ -358,12 +356,8 @@ class Semantic:
                 if symbol:
                     if symbol[1] == 'numbar':
                         val1 = symbol[2]
-                        numbar = True
                     if symbol[1] == 'numbr':
-                        if numbar:
-                            val1 = self.implicit_typecast(symbol[2], 'numbr', 'numbar')
-                        else:
-                            val1 = symbol[2]
+                        val1 = self.implicit_typecast(symbol[2], 'numbr', 'numbar')
                     if symbol[1] == 'troof':
                         #make an error for now
                         self.error = True
@@ -373,13 +367,9 @@ class Semantic:
                     self.error = True
             else:
                 if args[1][1] == 'numbar':
-                    numbar = True
                     val1 = float(args[1][0])
                 if args[1][1] == 'numbr':
-                    if numbar:
-                        val1 = self.implicit_typecast(args[1][0], 'numbr', 'numbar')
-                    else:
-                        val1 = int(args[1][0])
+                    val1 = self.implicit_typecast(args[1][0], 'numbr', 'numbar')
                 if args[1][1] == 'troof':
                     self.error = True
                 if args[1][1] == 'yarn':
@@ -390,12 +380,8 @@ class Semantic:
                 if symbol:
                     if symbol[1] == 'numbar':
                         val2 = symbol[2]
-                        numbar = True
                     if symbol[1] == 'numbr':
-                        if numbar:
-                            val2 = self.implicit_typecast(symbol[2], 'numbr', 'numbar')
-                        else:
-                            val2 = symbol[2]
+                        val2 = self.implicit_typecast(symbol[2], 'numbr', 'numbar')
                     if symbol[1] == 'troof':
                         #make an error for now
                         self.error = True
@@ -405,13 +391,9 @@ class Semantic:
                     self.error = True
             else:
                 if args[3][1] == 'numbar':
-                    numbar = True
                     val2 = float(args[3][0])
                 if args[3][1] == 'numbr':
-                    if numbar:
-                        val2 = self.implicit_typecast(args[3][0], 'numbr', 'numbar')
-                    else:
-                        val2 = int(args[3][0])
+                    val2 = self.implicit_typecast(args[3][0], 'numbr', 'numbar')
                 if args[3][1] == 'troof':
                     self.error = True
                 if args[3][1] == 'yarn':
@@ -439,12 +421,8 @@ class Semantic:
                 if symbol:
                     if symbol[1] == 'numbar':
                         val1 = symbol[2]
-                        numbar = True
                     if symbol[1] == 'numbr':
-                        if numbar:
                             val1 = self.implicit_typecast(symbol[2], 'numbr', 'numbar')
-                        else:
-                            val1 = symbol[2]
                     if symbol[1] == 'troof':
                         #make an error for now
                         self.error = True
@@ -454,13 +432,9 @@ class Semantic:
                     self.error = True
             else:
                 if args[1][1] == 'numbar':
-                    numbar = True
                     val1 = float(args[1][0])
                 if args[1][1] == 'numbr':
-                    if numbar:
-                        val1 = self.implicit_typecast(args[1][0], 'numbr', 'numbar')
-                    else:
-                        val1 = int(args[1][0])
+                    val1 = self.implicit_typecast(args[1][0], 'numbr', 'numbar')
                 if args[1][1] == 'troof':
                     self.error = True
                 if args[1][1] == 'yarn':
@@ -471,12 +445,8 @@ class Semantic:
                 if symbol:
                     if symbol[1] == 'numbar':
                         val2 = symbol[2]
-                        numbar = True
                     if symbol[1] == 'numbr':
-                        if numbar:
-                            val2 = self.implicit_typecast(symbol[2], 'numbr', 'numbar')
-                        else:
-                            val2 = symbol[2]
+                        val2 = self.implicit_typecast(symbol[2], 'numbr', 'numbar')
                     if symbol[1] == 'troof':
                         #make an error for now
                         self.error = True
@@ -486,13 +456,9 @@ class Semantic:
                     self.error = True
             else:
                 if args[6][1] == 'numbar':
-                    numbar = True
                     val2 = float(args[6][0])
                 if args[6][1] == 'numbr':
-                    if numbar:
-                        val2 = self.implicit_typecast(args[6][0], 'numbr', 'numbar')
-                    else:
-                        val2 = int(args[3][0])
+                    val2 = self.implicit_typecast(args[6][0], 'numbr', 'numbar')
                 if args[6][1] == 'troof':
                     self.error = True
                 if args[6][1] == 'yarn':
@@ -571,6 +537,7 @@ class Semantic:
         string = ''
         for value in values:
             string = string + value
+        self.toprint.append(string)
         print(string)
     #----------------
 
