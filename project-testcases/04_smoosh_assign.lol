@@ -1,8 +1,8 @@
 HAI
     WAZZUP
         BTW variable dec
-        I HAS A x
-        I HAS A y
+        I HAS A x ITZ "A"
+        I HAS A y ITZ "B"
     BUHBYE
     
     OBTW
