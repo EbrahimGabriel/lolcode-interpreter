@@ -177,7 +177,7 @@ class LOLCODE_Interpreter(tk.Tk):
         # categorized
         ###CHANGE THE MULTIPLE x | y | z TO ONE LINE EACH
         self.identifiers = r'^([a-zA-Z][a-zA-Z0-9_]*)$'
-        self.numbr = r'^((-?[1-9]+)|(0))$'
+        self.numbr = r'^((-?[1-9][0-9]*)|(0))$'
         self.numbar = r'^((-?[1-9][0-9]*\.[0.9]+)|(-?[0\.[0.9]+))$'
         self.yarn = r'^"[^"]*"$'
         self.troof = r'^(WIN|FAIL)$'
@@ -513,7 +513,6 @@ class LOLCODE_Interpreter(tk.Tk):
             category = 'start multi comment'
         if re.search(self.multicommentend, token) != None:
             category = 'end multi comment'
-                
 
         return [token, category]
 
